@@ -1,0 +1,13 @@
+{
+  "name": "space-exploration",
+  "version": "1.0.0",
+  "description": "宇宙探索网站",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "install": "cd backend && npm install",
+    "start": "cd backend && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
