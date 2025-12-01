@@ -1,0 +1,66 @@
+# 依赖
+node_modules/
+
+# 环境变量
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 构建产物
+dist/
+build/
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 编辑器目录和文件
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 数据库备份
+*.bak
+*.dump
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# 生产环境配置
+*.production.json
+
+# 敏感文件
+*.pem
+*.key
+*.crt
+*.csr
+
+# 其他
+*.pid
+*.seed
+*.pid.lock
+
+# 前端构建产物
+/public/my-site/build/
+/public/my-site/dist/
