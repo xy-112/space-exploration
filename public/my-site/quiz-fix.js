@@ -148,7 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateQuizUI();
         showQuestion();
         quizResults.style.display = 'none';
-        quizContainer.querySelector('.quiz-container').style.display = 'block';
+        // quizContainer本身就是quiz-container元素，不需要再查询
+        quizContainer.style.display = 'block';
     }
     
     // 更新测验UI
@@ -241,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsMessageEl.textContent = message;
     
         // 显示结果，隐藏问题
-        quizContainer.querySelector('.quiz-container').style.display = 'none';
+        quizContainer.style.display = 'none';
         quizResults.style.display = 'block';
     }
     
