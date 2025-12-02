@@ -56,6 +56,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// 在404处理之前添加
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/index.html'));
+});
+
 // 404处理
 app.use((req, res) => {
   res.status(404).json({
