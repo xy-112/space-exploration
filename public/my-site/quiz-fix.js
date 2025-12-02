@@ -1,9 +1,43 @@
 // 修复太空知识大挑战功能
-console.log('加载太空知识大挑战修复脚本...');
+console.log('=== 太空知识大挑战修复脚本开始加载 ===');
+
+// 立即执行的代码，用于测试脚本是否被正确加载
+if (typeof document !== 'undefined') {
+    console.log('DOM对象可用，脚本在浏览器环境中执行');
+    console.log('当前页面URL:', window.location.href);
+    console.log('脚本路径:', document.currentScript ? document.currentScript.src : '未知');
+}
 
 // 等待DOM完全加载
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM已加载，初始化太空知识大挑战...');
+    console.log('=== DOM已加载，开始初始化太空知识大挑战 ===');
+    
+    // 检查所有必要的DOM元素是否存在
+    console.log('检查DOM元素...');
+    const requiredIds = [
+        'quiz', 'quiz-progress', 'current-question', 'total-questions',
+        'quiz-score', 'quiz-question', 'quiz-options', 'quiz-prev',
+        'quiz-next', 'quiz-submit', 'quiz-results', 'final-score',
+        'max-score', 'results-message', 'quiz-restart', 'quiz-share'
+    ];
+    
+    const missingIds = [];
+    requiredIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) {
+            missingIds.push(id);
+            console.error(`DOM元素缺失: #${id}`);
+        } else {
+            console.log(`DOM元素找到: #${id}`);
+        }
+    });
+    
+    if (missingIds.length > 0) {
+        console.error(`共缺失 ${missingIds.length} 个DOM元素，无法初始化太空知识大挑战`);
+        return;
+    }
+    
+    console.log('所有DOM元素检查通过，开始初始化功能...');
     
     // 直接定义太空知识大挑战数据
     const quizQuestions = [
