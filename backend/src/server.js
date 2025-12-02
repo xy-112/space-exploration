@@ -40,7 +40,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务
-app.use(express.static(path.join(__dirname, '../../public')));
+const publicPath = path.join(__dirname, '../../public');
+app.use(express.static(publicPath));
 
 // 路由
 app.use('/api/auth', authRoutes);
