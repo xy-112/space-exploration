@@ -40,7 +40,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务
-const publicPath = path.join(__dirname, '../../public');
+const publicPath = path.join(__dirname, '../../public/my-site');
 app.use(express.static(publicPath));
 
 // 路由
@@ -57,17 +57,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 在404处理之前添加
+// 前端路由处理 - 返回index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public/index.html'));
-});
-
-// 404处理
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: '路由未找到'
-  });
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 // 全局错误处理
