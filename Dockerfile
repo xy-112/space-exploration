@@ -1,23 +1,23 @@
-# 使用Node.js 18作为基础镜像
+# Use Node.js 18 as the base image
 FROM node:18-alpine
 
-# 设置工作目录
+# Set the working directory
 WORKDIR /app
 
-# 复制package.json和package-lock.json到工作目录
+# Copy package.json and package-lock.json to the working directory
 COPY backend/package*.json ./
 
-# 安装依赖
+# Install dependencies
 RUN npm install
 
-# 复制后端代码到工作目录
+# Copy backend code to the working directory
 COPY backend/ ./
 
-# 复制前端静态文件到工作目录
+# Copy frontend static files to the working directory
 COPY public/ ./public/
 
-# 暴露端口
+# Expose port
 EXPOSE 5000
 
-# 启动服务器
+# Start the server
 CMD ["npm", "start"]
