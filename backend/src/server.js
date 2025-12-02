@@ -39,9 +39,8 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 静态文件服务
-const publicPath = path.join(__dirname, '../../public/my-site');
-app.use(express.static(publicPath));
+// 静态文件服务 - 使用简单路径，避免复杂相对路径计算
+app.use(express.static('public/my-site'));
 
 // 路由
 app.use('/api/auth', authRoutes);
@@ -57,9 +56,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 前端路由处理 - 返回index.html
+// 前端路由处理 - 使用try-catch确保不会崩溃
 app.get('*', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'));
+  try {
+    // 首先尝试直接使用相对路径
+    res.sendFile('public/my-site/index.html', { root: '.' });
+  } catch (error) {
+    // 如果失败，返回简单的JSON响应，避免应用崩溃
+    res.status(404).json({
+      success: false,
+      error: '无法找到页面' + error.message
+    });
+  }
 });
 
 // 全局错误处理
