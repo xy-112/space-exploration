@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/email');
 const { validationResult } = require('express-validator');
 
