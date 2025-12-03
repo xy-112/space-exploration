@@ -158,7 +158,8 @@ exports.getTopPopularMissions = async (req, res, next) => {
 // 收藏/取消收藏任务
 exports.toggleFavorite = async (req, res, next) => {
   try {
-    const missionId = req.params.id;
+    // 将字符串ID转换为数字类型，因为前端使用的是数字ID
+    const missionId = parseInt(req.params.id);
     const userId = req.user.id;
     
     // 更新用户收藏
@@ -171,14 +172,14 @@ exports.toggleFavorite = async (req, res, next) => {
       });
     }
     
-    // 检查任务是否已收藏
+    // 检查任务是否已收藏 - 使用数字比较
     const isFavorited = user.favorites.includes(missionId);
     
     if (isFavorited) {
-      // 取消收藏
-      user.favorites = user.favorites.filter(id => id.toString() !== missionId);
+      // 取消收藏 - 使用数字比较
+      user.favorites = user.favorites.filter(id => id !== missionId);
     } else {
-      // 添加收藏
+      // 添加收藏 - 存储为数字
       user.favorites.push(missionId);
     }
     
@@ -195,7 +196,11 @@ exports.toggleFavorite = async (req, res, next) => {
       }
     });
   } catch (error) {
-    next(error);
+    console.error('收藏/取消收藏错误:', error);
+    res.status(500).json({
+      success: false,
+      error: '操作失败，请稍后重试'
+    });
   }
 };
 
@@ -205,7 +210,7 @@ exports.getUserFavorites = async (req, res, next) => {
     const userId = req.user.id;
     
     // 获取用户信息
-    const user = await require('../models/User').findById(userId).populate('favorites');
+    const user = await require('../models/User').findById(userId);
     
     if (!user) {
       return res.status(404).json({
@@ -214,11 +219,22 @@ exports.getUserFavorites = async (req, res, next) => {
       });
     }
     
+    // 因为favorites是数字ID数组，不是ObjectId，所以需要单独查询任务
+    const Mission = require('../models/Mission');
+    const favoriteMissions = await Mission.find({
+      // 将数字ID转换为字符串，因为MongoDB中的_id是字符串类型
+      _id: { $in: user.favorites.map(id => id.toString()) }
+    });
+    
     res.status(200).json({
       success: true,
-      favorites: user.favorites
+      favorites: favoriteMissions
     });
   } catch (error) {
-    next(error);
+    console.error('获取收藏任务错误:', error);
+    res.status(500).json({
+      success: false,
+      error: '获取收藏任务失败，请稍后重试'
+    });
   }
 };

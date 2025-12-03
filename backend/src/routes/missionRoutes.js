@@ -5,18 +5,8 @@ const { authenticate } = require('../middleware/auth');
 
 // 太空任务相关路由
 router.get('/', missionController.getAllMissions);
-router.get('/:id', missionController.getMissionById);
-router.get('/category/:category', missionController.getMissionsByCategory);
-router.post('/', authenticate, missionController.createMission);
-router.put('/:id', authenticate, missionController.updateMission);
-router.delete('/:id', authenticate, missionController.deleteMission);
-router.get('/search/:keyword', missionController.searchMissions);
-router.get('/popular/top', missionController.getTopPopularMissions);
-
-// 添加特色任务路由，与前端API客户端匹配
-router.get('/featured', missionController.getTopPopularMissions);
-
-// 添加获取任务类别路由
+router.get('/favorites', authenticate, missionController.getUserFavorites); // 移到/:id之前
+router.get('/featured', missionController.getTopPopularMissions); // 移到/:id之前
 router.get('/categories', async (req, res) => {
   try {
     // 获取所有唯一的任务类别
@@ -33,11 +23,15 @@ router.get('/categories', async (req, res) => {
     });
   }
 });
+router.get('/category/:category', missionController.getMissionsByCategory);
+router.get('/search/:keyword', missionController.searchMissions);
+router.get('/popular/top', missionController.getTopPopularMissions);
+router.get('/:id', missionController.getMissionById); // 移到所有特定路由之后
+router.post('/', authenticate, missionController.createMission);
+router.put('/:id', authenticate, missionController.updateMission);
+router.delete('/:id', authenticate, missionController.deleteMission);
 
 // 收藏/取消收藏任务
 router.post('/favorite/:id', authenticate, missionController.toggleFavorite);
-
-// 获取用户收藏的任务
-router.get('/favorites', authenticate, missionController.getUserFavorites);
 
 module.exports = router;
