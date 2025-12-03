@@ -1437,186 +1437,103 @@
             background: rgba(244, 67, 54, 0.9);
         }
         
-        /* 探索历程样式 - 简洁科技感设计 */
+        /* 探索历程样式 */
         .timeline {
-            padding: 100px 0;
+            padding: 120px 0;
             position: relative;
-            background-color: transparent;
         }
         
         .timeline-container {
             position: relative;
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 0 20px;
-            box-sizing: border-box;
         }
         
-        /* 中央时间轴 - 虚线样式 */
         .timeline-container::after {
             content: '';
             position: absolute;
-            width: 2px;
-            background: linear-gradient(to bottom, transparent, rgba(7, 114, 202, 0.5), transparent);
-            background-size: 2px 40px;
-            background-repeat: repeat-y;
+            width: 6px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent-light));
             top: 0;
             bottom: 0;
             left: 50%;
-            margin-left: -1px;
-            z-index: 1;
+            margin-left: -3px;
+            border-radius: 3px;
         }
         
         .timeline-item {
-            padding: 60px 0;
+            padding: 10px 20px;
             position: relative;
-            width: 100%;
+            width: 55%;
             box-sizing: border-box;
         }
         
-        /* 卡片容器 - 深蓝色卡片 */
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+        
+        .timeline-item:nth-child(even) {
+            left: 45%;
+        }
+        
         .timeline-content {
+            padding: 25px 35px;
+            background: rgba(26, 26, 74, 0.9);
+            border-radius: 10px;
+            border: 1px solid rgba(74, 157, 227, 0.3);
             position: relative;
-            width: 40%;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(10, 23, 69, 0.9) 0%, rgba(17, 30, 87, 0.8) 100%);
-            border-radius: 8px;
-            border: 1px solid rgba(7, 114, 202, 0.3);
             box-shadow: 0 0 20px rgba(7, 114, 202, 0.3);
-            transition: all 0.3s ease;
         }
         
-        /* 卡片悬停效果 */
-        .timeline-content:hover {
-            box-shadow: 0 0 30px rgba(7, 114, 202, 0.5);
-            transform: translateY(-3px);
-        }
-        
-        /* 左侧卡片样式 */
-        .timeline-item .timeline-content.left {
-            margin-right: auto;
-            margin-left: 0;
-        }
-        
-        /* 右侧卡片样式 */
-        .timeline-item .timeline-content.right {
-            margin-left: auto;
-            margin-right: 0;
-        }
-        
-        /* 时间线节点 - 发光蓝色圆点 */
-        .timeline-item::before {
+        .timeline-item:nth-child(odd) .timeline-content::after {
             content: '';
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            border-radius: 50%;
-            z-index: 2;
-            left: 50%;
-            transform: translateX(-50%);
-            box-shadow: 0 0 20px rgba(7, 114, 202, 0.8), 0 0 40px rgba(7, 114, 202, 0.4);
-            animation: pulse 2s infinite;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            background: rgba(26, 26, 74, 0.7);
+            border-right: 1px solid rgba(74, 157, 227, 0.2);
+            border-top: 1px solid rgba(74, 157, 227, 0.2);
         }
         
-        /* 脉冲动画效果 */
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 10px rgba(7, 114, 202, 0.8), 0 0 20px rgba(7, 114, 202, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(7, 114, 202, 1), 0 0 40px rgba(7, 114, 202, 0.6);
-            }
-            100% {
-                box-shadow: 0 0 10px rgba(7, 114, 202, 0.8), 0 0 20px rgba(7, 114, 202, 0.4);
-            }
+        .timeline-item:nth-child(even) .timeline-content::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            background: rgba(26, 26, 74, 0.7);
+            border-left: 1px solid rgba(74, 157, 227, 0.2);
+            border-bottom: 1px solid rgba(74, 157, 227, 0.2);
         }
         
-        /* 日期标签 - 简洁样式 */
         .timeline-date {
-            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--accent-light);
             margin-bottom: 10px;
-            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
         }
         
         .timeline-date i {
-            font-size: 0.9rem;
-            color: var(--accent);
+            margin-right: 8px;
         }
         
-        /* 标题样式 - 亮蓝色突出 */
         .timeline-content h3 {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             margin-bottom: 10px;
-            color: var(--accent-light);
-            font-weight: 600;
-            line-height: 1.4;
-        }
-        
-        /* 内容样式 - 清晰易读 */
-        .timeline-content p {
             color: var(--text);
-            font-size: 0.85rem;
-            line-height: 1.6;
-            margin: 0;
-            opacity: 0.9;
         }
         
-        /* 确保文字正常换行 */
-        .timeline-content {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: normal;
+        .timeline-content p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
         }
         
-        .timeline-content * {
-            word-break: break-word;
-            hyphens: auto;
-            white-space: normal;
-        }
-        
-        /* 小屏幕单栏布局 */
-        @media (max-width: 992px) {
-            .timeline {
-                padding: 80px 0;
-            }
-            
-            .timeline-container::after {
-                left: 30px;
-            }
-            
-            /* 重置所有卡片 */
-            .timeline-item .timeline-content.left,
-            .timeline-item .timeline-content.right {
-                width: calc(100% - 60px) !important;
-                margin-left: 60px !important;
-                margin-right: 0 !important;
-            }
-            
-            .timeline-item::before {
-                left: 30px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .timeline-item .timeline-content.left,
-            .timeline-item .timeline-content.right {
-                width: calc(100% - 50px) !important;
-                margin-left: 50px !important;
-            }
-            
-            .timeline-container::after {
-                left: 20px;
-            }
-            
-            .timeline-item::before {
-                left: 20px;
-            }
-        }
         
         /* 太空知识大挑战样式 */
         .quiz {
@@ -2655,63 +2572,35 @@
             <h2 class="section-title">探索历程</h2>
             <div class="timeline-container">
                 <div class="timeline-item">
-                    <div class="timeline-content left">
-                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 1969年7月</div>
-                        <h3>人类首次登月</h3>
-                        <p>阿波罗11号成功将尼尔·阿姆斯特朗和巴兹·奥尔德林送上月球，成为人类首次登月任务。</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-content right">
-                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 1998年11月</div>
-                        <h3>国际空间站建立</h3>
-                        <p>国际空间站开始组装，成为人类在太空中的永久居住地和研究实验室。</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-content left">
-                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2012年8月</div>
-                        <h3>好奇号火星漫游车</h3>
-                        <p>好奇号火星漫游车成功登陆火星，开始对火星的地质和气候进行详细研究。</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-content right">
-                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2021年12月</div>
-                        <h3>詹姆斯·韦伯太空望远镜</h3>
-                        <p>詹姆斯·韦伯太空望远镜发射成功，开始探索宇宙的最早期星系和系外行星。</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-content left">
+                    <div class="timeline-content">
                         <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2023年10月</div>
                         <h3>新一代太空望远镜发射</h3>
                         <p>成功发射了能够观测遥远星系和系外行星大气成分的先进太空望远镜。</p>
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-content right">
+                    <div class="timeline-content">
                         <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2024年3月</div>
                         <h3>月球基地建设开始</h3>
                         <p>启动了月球永久基地的建设工作，为未来的深空探索提供前哨站。</p>
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-content left">
+                    <div class="timeline-content">
                         <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2025年7月</div>
                         <h3>首次商业太空旅行</h3>
                         <p>实现了首次完全商业化的太空旅行，让普通人也能体验太空飞行。</p>
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-content right">
+                    <div class="timeline-content">
                         <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2026年11月</div>
                         <h3>火星样本返回任务</h3>
                         <p>成功将从火星采集的岩石和土壤样本带回地球，进行详细分析。</p>
                     </div>
                 </div>
                 <div class="timeline-item">
-                    <div class="timeline-content left">
+                    <div class="timeline-content">
                         <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2028年5月</div>
                         <h3>金星大气探测</h3>
                         <p>发射探测器研究金星浓厚大气层，寻找可能存在的微生物生命迹象。</p>
@@ -2720,7 +2609,7 @@
             </div>
         </div>
     </section>
-
+    
 <!-- 太空知识大挑战区域 -->
 <section class="quiz" id="quiz">
     <div class="container">
