@@ -87,6 +87,29 @@ const userSchema = new mongoose.Schema({
     }]
   },
   
+  quizStats: {
+    totalScore: {
+      type: Number,
+      default: 0
+    },
+    highScore: {
+      type: Number,
+      default: 0
+    },
+    quizzesTaken: {
+      type: Number,
+      default: 0
+    },
+    averageScore: {
+      type: Number,
+      default: 0
+    },
+    achievements: [{
+      type: String,
+      enum: ['first_quiz', 'perfect_score', 'quiz_master', 'quiz_champion']
+    }]
+  },
+  
   preferences: {
     theme: {
       type: String,

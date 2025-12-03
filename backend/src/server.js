@@ -87,6 +87,8 @@ app.get('/api/test', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/missions', require('./routes/missionRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/games', require('./routes/gameRoutes'));
+app.use('/api/quiz', require('./routes/quizRoutes'));
 
 // ==================== 前端路由 ====================
 app.get('*', (req, res, next) => {

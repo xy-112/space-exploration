@@ -346,6 +346,29 @@ document.addEventListener('DOMContentLoaded', function() {
         saveQuizScore(score, quizQuestions.length);
     }
     
+    // 保存知识挑战成绩到数据库
+    async function saveQuizScore(score, totalQuestions) {
+        try {
+            // 检查用户是否登录
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                // 调用后端API保存成绩
+                await fetch('/api/quiz/save-score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        score: score,
+                        totalQuestions: totalQuestions
+                    })
+                });
+            }
+        } catch (error) {
+            console.error('保存知识挑战成绩失败:', error);
+        }
+    }
+    
     // 事件监听器
     if (elements.quizPrevBtn) {
         elements.quizPrevBtn.addEventListener('click', () => {

@@ -419,6 +419,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // 保存游戏成绩
+    async function saveGameScore(finalScore) {
+        try {
+            // 检查用户是否登录
+            if (window.authManager && window.authManager.getCurrentUser()) {
+                // 调用后端API保存成绩
+                await fetch('/api/games/save-score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        score: finalScore
+                    })
+                });
+            }
+        } catch (error) {
+            console.error('保存游戏成绩失败:', error);
+        }
+    }
+    
     // 游戏结束
     function gameOver() {
         gameActive = false;
@@ -428,6 +450,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="btn btn-primary" id="restart-game">重新开始</button>
         `;
         gameOverlay.style.display = 'flex';
+        
+        // 保存游戏成绩
+        saveGameScore(score);
         
         // 重新绑定重启按钮事件
         document.getElementById('restart-game').addEventListener('click', initGame);
