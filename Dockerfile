@@ -25,4 +25,4 @@ ENV FRONTEND_PATH=/app/public/my-site
 ENV PORT=5000
 
 # 启动服务器
-CMD ["node", "backend/src/server-production.js"]
+CMD ["node", "backend/src/server.js"]
