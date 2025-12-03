@@ -11,13 +11,14 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS配置
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  next();
-});
+// CORS配置 - 使用官方cors包
+const cors = require('cors');
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 
 // ==================== 路径配置 ====================
 // 判断运行环境
@@ -31,8 +32,8 @@ if (isProduction || isRailway) {
   FRONTEND_PATH = '/app/public/my-site';
   console.log('🌐 运行环境: 生产环境 (Railway)');
 } else {
-  // 开发环境：使用Windows绝对路径
-  FRONTEND_PATH = 'D:\\网页搭建\\space-exploration\\public\\my-site';
+  // 开发环境：使用相对路径
+  FRONTEND_PATH = path.join(__dirname, '../../public/my-site');
   console.log('💻 运行环境: 本地开发');
 }
 

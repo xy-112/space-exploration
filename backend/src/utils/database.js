@@ -25,12 +25,17 @@ const connectDB = async () => {
       process.exit(1);
     }
     
-    // 连接配置选项
+    // 连接配置选项 - 增加重试次数和超时时间
     const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 60000,
+      retryWrites: true,
+      w: 'majority',
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      waitQueueTimeoutMS: 30000,
     };
     
     console.log('[配置] 连接配置:', JSON.stringify(options, null, 2));
