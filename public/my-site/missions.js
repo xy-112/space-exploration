@@ -164,6 +164,9 @@ const missionDetails = {
 
 // 太空任务管理器
 const missionManager = {
+    currentMissionId: null,
+    totalMissions: 4,
+    
     // 初始化任务模块
     init() {
         console.log('初始化太空任务模块...');
@@ -173,6 +176,9 @@ const missionManager = {
         
         // 初始化收藏按钮功能
         this.initFavoriteButtons();
+        
+        // 设置总任务数量
+        this.updateTotalMissions();
     },
     
     // 绑定事件监听器
@@ -192,20 +198,22 @@ const missionManager = {
             });
         });
         
-        // 关闭任务详情模态框
-        const closeMissionModal = document.getElementById('close-mission-modal');
-        if (closeMissionModal) {
-            closeMissionModal.addEventListener('click', () => this.hideMissionDetails());
+        // 返回按钮事件
+        const backBtn = document.getElementById('mission-back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => this.hideMissionDetails());
         }
         
-        // 点击模态框外部关闭
-        const missionModal = document.getElementById('mission-modal');
-        if (missionModal) {
-            missionModal.addEventListener('click', (e) => {
-                if (e.target === missionModal) {
-                    this.hideMissionDetails();
-                }
-            });
+        // 上一个任务按钮事件
+        const prevBtn = document.getElementById('mission-prev-btn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => this.showPrevMission());
+        }
+        
+        // 下一个任务按钮事件
+        const nextBtn = document.getElementById('mission-next-btn');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.showNextMission());
         }
     },
     
@@ -228,6 +236,22 @@ const missionManager = {
         });
     },
     
+    // 更新总任务数量
+    updateTotalMissions() {
+        const totalMissionsEl = document.getElementById('total-missions');
+        if (totalMissionsEl) {
+            totalMissionsEl.textContent = this.totalMissions;
+        }
+    },
+    
+    // 更新当前任务计数器
+    updateCurrentMission() {
+        const currentMissionEl = document.getElementById('current-mission');
+        if (currentMissionEl && this.currentMissionId) {
+            currentMissionEl.textContent = this.currentMissionId;
+        }
+    },
+    
     // 显示任务详情
     showMissionDetails(missionId) {
         console.log('显示任务详情:', missionId);
@@ -238,183 +262,128 @@ const missionManager = {
             return;
         }
         
-        // 获取模态框元素
-        const modal = document.getElementById('mission-modal');
-        if (!modal) {
-            console.error('任务详情模态框不存在');
+        // 设置当前任务ID
+        this.currentMissionId = missionId;
+        
+        // 更新当前任务计数器
+        this.updateCurrentMission();
+        
+        // 生成任务详情内容
+        this.generateMissionContent(mission);
+        
+        // 显示任务详情页面
+        const detailPage = document.getElementById('mission-detail-page');
+        if (detailPage) {
+            detailPage.classList.add('active');
+        }
+        
+        // 阻止页面滚动
+        document.body.style.overflow = 'hidden';
+    },
+    
+    // 生成任务详情内容
+    generateMissionContent(mission) {
+        console.log('生成任务详情内容:', mission.title);
+        
+        // 获取模板
+        const template = document.getElementById('mission-detail-template');
+        if (!template) {
+            console.error('任务详情模板不存在');
             return;
         }
         
-        // 填充模态框内容
-        this.fillMissionDetails(mission);
+        // 获取滑块容器
+        const slider = document.getElementById('mission-detail-slider');
+        if (!slider) {
+            console.error('任务详情滑块不存在');
+            return;
+        }
         
-        // 显示模态框
-        modal.classList.add('active');
+        // 生成科学目标HTML
+        const scienceGoalsHTML = mission.scienceGoals.map(goal => `<li>${goal}</li>`).join('');
+        
+        // 生成时间线HTML
+        const timelineHTML = mission.timeline.map(item => {
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-year">${item.year}</div>
+                    <div class="timeline-event">${item.event}</div>
+                </div>
+            `;
+        }).join('');
+        
+        // 生成挑战HTML
+        const challengesHTML = mission.challenges.map(challenge => `<li>${challenge}</li>`).join('');
+        
+        // 生成机构HTML
+        const agenciesHTML = mission.agencies.map(agency => `<li>${agency}</li>`).join('');
+        
+        // 生成统计数据HTML
+        let statsHTML = '';
+        for (const [key, value] of Object.entries(mission.stats)) {
+            statsHTML += `
+                <div class="stat-item">
+                    <div class="stat-label">${this.formatStatLabel(key)}</div>
+                    <div class="stat-value">${value}</div>
+                </div>
+            `;
+        }
+        
+        // 替换模板变量
+        const templateContent = template.innerHTML
+            .replace(/{{title}}/g, mission.title)
+            .replace(/{{description}}/g, mission.description)
+            .replace(/{{image}}/g, mission.image)
+            .replace(/{{overview}}/g, mission.overview)
+            .replace(/{{scienceGoals}}/g, scienceGoalsHTML)
+            .replace(/{{timeline}}/g, timelineHTML)
+            .replace(/{{challenges}}/g, challengesHTML)
+            .replace(/{{agencies}}/g, agenciesHTML)
+            .replace(/{{stats}}/g, statsHTML);
+        
+        // 更新滑块内容
+        slider.innerHTML = templateContent;
     },
     
     // 隐藏任务详情
     hideMissionDetails() {
-        const modal = document.getElementById('mission-modal');
-        if (modal) {
-            modal.classList.remove('active');
+        console.log('隐藏任务详情');
+        
+        // 隐藏任务详情页面
+        const detailPage = document.getElementById('mission-detail-page');
+        if (detailPage) {
+            detailPage.classList.remove('active');
+        }
+        
+        // 恢复页面滚动
+        document.body.style.overflow = '';
+    },
+    
+    // 显示上一个任务
+    showPrevMission() {
+        if (this.currentMissionId > 1) {
+            this.showMissionDetails(this.currentMissionId - 1);
         }
     },
     
-    // 填充任务详情
-    fillMissionDetails(mission) {
-        console.log('填充任务详情:', mission.title);
-        
-        // 更新模态框标题
-        const titleEl = document.getElementById('mission-modal-title');
-        if (titleEl) {
-            titleEl.textContent = mission.title;
-        }
-        
-        // 更新任务描述
-        const descEl = document.getElementById('mission-modal-description');
-        if (descEl) {
-            descEl.textContent = mission.description;
-        }
-        
-        // 更新任务图片
-        const imgEl = document.getElementById('mission-detail-image');
-        if (imgEl) {
-            imgEl.src = mission.image;
-            imgEl.alt = mission.title;
-        }
-        
-        // 更新任务概述
-        const overviewEl = document.getElementById('mission-overview');
-        if (overviewEl) {
-            overviewEl.textContent = mission.overview;
-        }
-        
-        // 更新科学目标
-        const scienceGoalsEl = document.getElementById('mission-science-goals');
-        if (scienceGoalsEl) {
-            scienceGoalsEl.innerHTML = mission.scienceGoals.map(goal => `<li>${goal}</li>`).join('');
-        }
-        
-        // 更新探索历程
-        const timelineEl = document.getElementById('mission-timeline');
-        if (timelineEl) {
-            const timelineHTML = mission.timeline.map(item => {
-                return `
-                    <div class="timeline-item">
-                        <div class="timeline-year">${item.year}</div>
-                        <div class="timeline-event">${item.event}</div>
-                    </div>
-                `;
-            }).join('');
-            timelineEl.innerHTML = timelineHTML;
-            
-            // 添加时间线样式（如果不存在）
-            this.addTimelineStyles();
-        }
-        
-        // 更新技术挑战
-        const challengesEl = document.getElementById('mission-challenges');
-        if (challengesEl) {
-            challengesEl.innerHTML = mission.challenges.map(challenge => `<li>${challenge}</li>`).join('');
-        }
-        
-        // 更新参与机构
-        const agenciesEl = document.getElementById('mission-agencies');
-        if (agenciesEl) {
-            agenciesEl.innerHTML = mission.agencies.map(agency => `<li>${agency}</li>`).join('');
+    // 显示下一个任务
+    showNextMission() {
+        if (this.currentMissionId < this.totalMissions) {
+            this.showMissionDetails(this.currentMissionId + 1);
         }
     },
     
-    // 添加时间线样式
-    addTimelineStyles() {
-        // 检查是否已添加样式
-        if (document.getElementById('mission-timeline-styles')) {
-            return;
-        }
-        
-        // 添加时间线CSS样式
-        const style = document.createElement('style');
-        style.id = 'mission-timeline-styles';
-        style.textContent = `
-            .mission-detail-stats {
-                margin-top: 20px;
-            }
-            
-            .timeline-item {
-                display: flex;
-                margin-bottom: 15px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid rgba(74, 157, 227, 0.2);
-            }
-            
-            .timeline-item:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-                padding-bottom: 0;
-            }
-            
-            .timeline-year {
-                font-weight: bold;
-                color: var(--accent-light);
-                margin-right: 20px;
-                min-width: 80px;
-            }
-            
-            .timeline-event {
-                flex: 1;
-            }
-            
-            .mission-detail-content {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .mission-detail-image {
-                text-align: center;
-            }
-            
-            .mission-detail-image img {
-                max-width: 100%;
-                border-radius: 10px;
-                max-height: 300px;
-                object-fit: cover;
-            }
-            
-            .mission-detail-section {
-                background: rgba(10, 10, 42, 0.5);
-                padding: 20px;
-                border-radius: 10px;
-                border: 1px solid rgba(74, 157, 227, 0.2);
-            }
-            
-            .mission-detail-section h3 {
-                color: var(--accent-light);
-                margin-bottom: 15px;
-                font-size: 1.3rem;
-            }
-            
-            .mission-detail-section ul {
-                padding-left: 20px;
-            }
-            
-            .mission-detail-section li {
-                margin-bottom: 8px;
-                color: var(--text-dim);
-            }
-            
-            @media (min-width: 768px) {
-                .mission-detail-content {
-                    grid-template-columns: 1fr 1fr;
-                }
-                
-                .mission-detail-image {
-                    grid-column: 1 / -1;
-                }
-            }
-        `;
-        
-        document.head.appendChild(style);
+    // 格式化统计数据标签
+    formatStatLabel(key) {
+        const labelMap = {
+            duration: '持续时间',
+            astronauts: '宇航员数量',
+            spacecraft: '探测器',
+            planetsDiscovered: '发现行星数量',
+            resources: '资源类型',
+            location: '位置'
+        };
+        return labelMap[key] || key;
     },
     
     // 获取任务详情

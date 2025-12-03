@@ -1,46 +1,307 @@
 // 3D太阳系模型功能
 console.log('=== 3D太阳系模块加载 ===');
 
+// 立即检查Three.js是否已加载
+if (typeof THREE === 'undefined') {
+    console.error('Three.js未正确加载，3D太阳系模块无法初始化');
+    // 尝试重新加载Three.js，使用更可靠的CDN链接
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.128.0/three.min.js';
+    script.onload = function() {
+        console.log('Three.js重新加载成功，尝试初始化3D太阳系');
+        initSolarSystemAfterThreeJsLoaded();
+    };
+    script.onerror = function() {
+        console.error('Three.js重新加载失败');
+        showThreeJSError();
+    };
+    document.head.appendChild(script);
+} else {
+    // Three.js已加载，等待DOM完全加载后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== 3D太阳系模块初始化 ===');
+        initSolarSystemMain();
+    });
+}
+
 // 等待DOM完全加载
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== 3D太阳系模块初始化 ===');
+    console.log('=== DOM完全加载 ===');
     
-    // 检查Three.js是否已加载
-    if (typeof THREE === 'undefined') {
-        console.error('Three.js未正确加载，3D太阳系模块无法初始化');
-        // 尝试重新加载Three.js
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-        script.onload = function() {
-            console.log('Three.js重新加载成功，尝试初始化3D太阳系');
-            initSolarSystemFallback();
-        };
-        document.head.appendChild(script);
+    // 检查solar-system容器是否存在
+    const container = document.getElementById('solar-system');
+    if (!container) {
+        console.error('未找到solar-system容器，3D太阳系模块无法初始化');
         return;
     }
     
+    // 确保容器有正确的样式
+    container.style.width = '100%';
+    container.style.height = '600px';
+    container.style.border = '1px solid rgba(74, 157, 227, 0.3)';
+    container.style.borderRadius = '15px';
+    container.style.overflow = 'hidden';
+    container.style.position = 'relative';
+});
+
+// Three.js加载后初始化
+function initSolarSystemAfterThreeJsLoaded() {
+    console.log('=== Three.js加载后初始化 ===');
+    
+    // 检查DOM是否已加载
+    if (document.readyState === 'loading') {
+        // DOM还在加载，等待DOMContentLoaded事件
+        document.addEventListener('DOMContentLoaded', function() {
+            initSolarSystemMain();
+        });
+    } else {
+        // DOM已加载，直接初始化
+        initSolarSystemMain();
+    }
+}
+
+// 主初始化函数
+function initSolarSystemMain() {
+    console.log('=== 调用主初始化函数 ===');
+    
+    // 显示WebGL不支持的消息
+    function showWebGLMessage() {
+        const container = document.getElementById('solar-system');
+        if (container) {
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center; padding: 20px;">
+                    <h3>浏览器不支持WebGL</h3>
+                    <p>请尝试使用Chrome、Firefox或Edge等现代浏览器访问本网站</p>
+                    <p>或升级您的浏览器版本以体验3D太阳系模型</p>
+                </div>
+            `;
+        }
+    }
+    
+    // 显示Three.js加载失败的消息
+    function showThreeJSError() {
+        const container = document.getElementById('solar-system');
+        if (container) {
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #fff; text-align: center; padding: 20px;">
+                    <h3>3D太阳系模型加载失败</h3>
+                    <p>无法加载Three.js库，请检查网络连接或稍后重试</p>
+                    <p>或使用其他浏览器访问本网站</p>
+                </div>
+            `;
+        }
+    }
+    
+    // WebGL支持检查函数
+    function supportsWebGL() {
+        try {
+            const canvas = document.createElement('canvas');
+            return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+        } catch (e) {
+            return false;
+        }
+    }
+    
     // 检查WebGL支持
-    if (!Detector) {
-        console.error('Detector未定义，无法检查WebGL支持');
-    } else if (!Detector.webgl) {
+    if (!supportsWebGL()) {
         console.error('浏览器不支持WebGL，无法显示3D太阳系');
-        Detector.addGetWebGLMessage();
+        showWebGLMessage();
         return;
     }
     
     // 检查OrbitControls是否已加载
     if (typeof THREE.OrbitControls === 'undefined') {
         console.error('OrbitControls未正确加载，尝试动态加载');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js';
-        script.onload = function() {
-            console.log('OrbitControls加载成功，尝试初始化3D太阳系');
-            initSolarSystem();
+        
+        // 使用备选方案：直接在代码中定义OrbitControls的简化版本
+        console.log('使用简化版OrbitControls初始化3D太阳系');
+        
+        // 简化版OrbitControls实现
+        THREE.OrbitControls = function (camera, domElement) {
+            this.camera = camera;
+            this.domElement = domElement || document;
+            
+            // 控制选项
+            this.enabled = true;
+            this.enableRotate = true;
+            this.enableZoom = true;
+            this.enablePan = true;
+            
+            // 旋转参数
+            this.rotateSpeed = 1.0;
+            this.zoomSpeed = 1.2;
+            this.panSpeed = 0.3;
+            
+            // 鼠标状态
+            this.mouseDown = false;
+            this.mouseX = 0;
+            this.mouseY = 0;
+            
+            // 相机状态
+            this.target = new THREE.Vector3();
+            this.position0 = this.camera.position.clone();
+            this.target0 = this.target.clone();
+            
+            // 添加事件监听
+            this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
+            this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+            this.domElement.addEventListener('mouseup', this.onMouseUp.bind(this), false);
+            this.domElement.addEventListener('mousewheel', this.onMouseWheel.bind(this), false);
+            this.domElement.addEventListener('DOMMouseScroll', this.onMouseWheel.bind(this), false); // Firefox
+            this.domElement.addEventListener('touchstart', this.onTouchStart.bind(this), false);
+            this.domElement.addEventListener('touchmove', this.onTouchMove.bind(this), false);
+            this.domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
+            
+            // 初始化相机目标
+            this.update();
         };
-        document.head.appendChild(script);
-        return;
+        
+        THREE.OrbitControls.prototype = {
+            constructor: THREE.OrbitControls,
+            
+            onMouseDown: function (event) {
+                if (!this.enabled || !this.enableRotate) return;
+                
+                this.mouseDown = true;
+                this.mouseX = event.clientX;
+                this.mouseY = event.clientY;
+                event.preventDefault();
+            },
+            
+            onMouseMove: function (event) {
+                if (!this.enabled || !this.mouseDown) return;
+                
+                const deltaX = event.clientX - this.mouseX;
+                const deltaY = event.clientY - this.mouseY;
+                
+                // 旋转相机
+                if (this.enableRotate) {
+                    this.rotateCamera(deltaX, deltaY);
+                }
+                
+                this.mouseX = event.clientX;
+                this.mouseY = event.clientY;
+                this.update();
+            },
+            
+            onMouseUp: function () {
+                this.mouseDown = false;
+            },
+            
+            onMouseWheel: function (event) {
+                if (!this.enabled || !this.enableZoom) return;
+                
+                let delta = 0;
+                if (event.wheelDelta !== undefined) {
+                    // WebKit / Opera / Explorer 9
+                    delta = event.wheelDelta;
+                } else if (event.detail !== undefined) {
+                    // Firefox
+                    delta = -event.detail;
+                }
+                
+                this.zoomCamera(delta);
+                this.update();
+                event.preventDefault();
+            },
+            
+            onTouchStart: function (event) {
+                if (!this.enabled) return;
+                
+                this.mouseDown = true;
+                this.mouseX = event.touches[0].clientX;
+                this.mouseY = event.touches[0].clientY;
+            },
+            
+            onTouchMove: function (event) {
+                if (!this.enabled || !this.mouseDown) return;
+                
+                const deltaX = event.touches[0].clientX - this.mouseX;
+                const deltaY = event.touches[0].clientY - this.mouseY;
+                
+                // 旋转相机
+                if (this.enableRotate) {
+                    this.rotateCamera(deltaX, deltaY);
+                }
+                
+                this.mouseX = event.touches[0].clientX;
+                this.mouseY = event.touches[0].clientY;
+                this.update();
+            },
+            
+            onTouchEnd: function () {
+                this.mouseDown = false;
+            },
+            
+            rotateCamera: function (deltaX, deltaY) {
+                const rotateSpeed = this.rotateSpeed * 0.005;
+                
+                // 计算旋转角度
+                const rotateAngleX = deltaY * rotateSpeed;
+                const rotateAngleY = deltaX * rotateSpeed;
+                
+                // 旋转相机
+                const direction = this.camera.position.clone().sub(this.target).normalize();
+                const up = this.camera.up.clone();
+                
+                // 计算旋转轴
+                const axisX = new THREE.Vector3().crossVectors(up, direction).normalize();
+                
+                // 旋转相机位置
+                this.camera.position.applyAxisAngle(axisX, rotateAngleX);
+                this.camera.position.applyAxisAngle(up, rotateAngleY);
+            },
+            
+            zoomCamera: function (delta) {
+                const zoomSpeed = this.zoomSpeed * 0.01;
+                const factor = Math.pow(0.95, delta * zoomSpeed);
+                
+                // 缩放相机距离
+                const distance = this.camera.position.distanceTo(this.target);
+                const direction = this.camera.position.clone().sub(this.target).normalize();
+                
+                // 更新相机位置
+                this.camera.position.sub(direction.multiplyScalar(distance * (1 - factor)));
+            },
+            
+            panCamera: function (deltaX, deltaY) {
+                if (!this.enablePan) return;
+                
+                const panSpeed = this.panSpeed * 0.01;
+                
+                // 计算平移向量
+                const up = this.camera.up.clone();
+                const direction = this.camera.position.clone().sub(this.target).normalize();
+                const right = new THREE.Vector3().crossVectors(direction, up).normalize();
+                const pan = new THREE.Vector3();
+                
+                pan.add(right.multiplyScalar(-deltaX * panSpeed));
+                pan.add(up.multiplyScalar(deltaY * panSpeed));
+                
+                // 平移相机和目标
+                this.camera.position.add(pan);
+                this.target.add(pan);
+            },
+            
+            update: function () {
+                // 更新相机朝向
+                this.camera.lookAt(this.target);
+            },
+            
+            reset: function () {
+                // 重置相机位置和目标
+                this.camera.position.copy(this.position0);
+                this.target.copy(this.target0);
+                this.update();
+            }
+        };
+        
+        console.log('简化版OrbitControls创建完成');
     }
-
+    
+    // 初始化3D太阳系
+    console.log('=== 开始初始化3D太阳系 ===');
+    
     let scene, camera, renderer, controls;
     let solarSystem;
     let planets = [];
@@ -95,8 +356,44 @@ document.addEventListener('DOMContentLoaded', function() {
         renderer.domElement.addEventListener('click', onCanvasClick);
         renderer.domElement.addEventListener('touchstart', onCanvasClick);
         
+        // 控制按钮事件
+        addControlButtonsEvent();
+        
         // 动画循环
         animate();
+    }
+    
+    function addControlButtonsEvent() {
+        // 重置视图按钮
+        const resetViewBtn = document.getElementById('reset-view');
+        if (resetViewBtn) {
+            resetViewBtn.addEventListener('click', function() {
+                controls.reset();
+                camera.position.set(0, 0, 80);
+            });
+        }
+        
+        // 旋转控制按钮
+        const toggleRotationBtn = document.getElementById('toggle-rotation');
+        if (toggleRotationBtn) {
+            toggleRotationBtn.addEventListener('click', function() {
+                rotationEnabled = !rotationEnabled;
+                this.innerHTML = rotationEnabled ? 
+                    '<i class="fas fa-pause"></i> 暂停旋转' : 
+                    '<i class="fas fa-play"></i> 继续旋转';
+            });
+        }
+        
+        // 关闭信息按钮
+        const closeInfoBtn = document.getElementById('close-info');
+        if (closeInfoBtn) {
+            closeInfoBtn.addEventListener('click', function() {
+                const planetInfo = document.getElementById('planet-info');
+                if (planetInfo) {
+                    planetInfo.classList.remove('active');
+                }
+            });
+        }
     }
     
     function createSolarSystem() {
@@ -389,47 +686,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始化3D太阳系
     initSolarSystem();
     
-    // 备选初始化函数，用于重新加载Three.js后的初始化
-    function initSolarSystemFallback() {
-        console.log('调用备选初始化函数initSolarSystemFallback()');
-        // 重新初始化3D太阳系
-        initSolarSystem();
-    }
-    
-    // 控制按钮事件
-    const resetViewBtn = document.getElementById('reset-view');
-    if (resetViewBtn) {
-        resetViewBtn.addEventListener('click', function() {
-            controls.reset();
-            camera.position.set(0, 0, 80);
-        });
-    } else {
-        console.error('未找到reset-view按钮');
-    }
-    
-    const toggleRotationBtn = document.getElementById('toggle-rotation');
-    if (toggleRotationBtn) {
-        toggleRotationBtn.addEventListener('click', function() {
-            rotationEnabled = !rotationEnabled;
-            this.innerHTML = rotationEnabled ? 
-                '<i class="fas fa-pause"></i> 暂停旋转' : 
-                '<i class="fas fa-play"></i> 继续旋转';
-        });
-    } else {
-        console.error('未找到toggle-rotation按钮');
-    }
-    
-    const closeInfoBtn = document.getElementById('close-info');
-    if (closeInfoBtn) {
-        closeInfoBtn.addEventListener('click', function() {
-            const planetInfo = document.getElementById('planet-info');
-            if (planetInfo) {
-                planetInfo.classList.remove('active');
-            }
-        });
-    } else {
-        console.error('未找到close-info按钮');
-    }
-    
     console.log('=== 3D太阳系模块初始化完成 ===');
-});
+}

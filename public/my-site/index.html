@@ -48,18 +48,41 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            background: radial-gradient(ellipse at center, rgba(3, 3, 30, 0.95) 0%, rgba(10, 10, 42, 0.98) 100%);
+            background-attachment: fixed;
         }
         
         .star {
             position: absolute;
-            background-color: white;
+            background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(170, 212, 255, 0.8) 50%, transparent 100%);
             border-radius: 50%;
-            animation: twinkle 5s infinite;
+            animation: twinkle 5s infinite ease-in-out;
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 0 0 5px rgba(170, 212, 255, 0.5);
+            transform: translateZ(0); /* 硬件加速 */
         }
         
+        /* 增强闪烁动画效果 */
         @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
+            0%, 100% { 
+                opacity: 0.3; 
+                transform: scale(1);
+                box-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 0 0 5px rgba(170, 212, 255, 0.5);
+            }
+            25% { 
+                opacity: 0.8; 
+                transform: scale(1.2);
+                box-shadow: 0 0 4px rgba(255, 255, 255, 1), 0 0 10px rgba(170, 212, 255, 0.7);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.5);
+                box-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 15px rgba(170, 212, 255, 0.9);
+            }
+            75% { 
+                opacity: 0.6; 
+                transform: scale(1.2);
+                box-shadow: 0 0 4px rgba(255, 255, 255, 1), 0 0 10px rgba(170, 212, 255, 0.7);
+            }
         }
         
         .container {
@@ -467,26 +490,94 @@
             position: absolute;
             border-radius: 50%;
             z-index: 1;
+            transition: all 0.3s ease;
         }
         
-        .planet-1 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle at 30% 30%, #3a5a8a, #1a2a5a);
-            top: 10%;
-            right: 10%;
-            box-shadow: 0 0 50px rgba(58, 90, 138, 0.5);
-            animation: float 25s infinite linear;
+        /* 大屏幕显示 */
+        @media (min-width: 1200px) {
+            .planet-1 {
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle at 30% 30%, #3a5a8a, #1a2a5a);
+                top: 10%;
+                right: 10%;
+                box-shadow: 0 0 50px rgba(58, 90, 138, 0.5);
+                animation: float 25s infinite linear;
+            }
+            
+            .planet-2 {
+                width: 200px;
+                height: 200px;
+                background: radial-gradient(circle at 40% 40%, #5a3a8a, #2a1a5a);
+                bottom: 15%;
+                left: 8%;
+                box-shadow: 0 0 40px rgba(90, 58, 138, 0.5);
+                animation: float 20s infinite linear reverse;
+            }
         }
         
-        .planet-2 {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle at 40% 40%, #5a3a8a, #2a1a5a);
-            bottom: 15%;
-            left: 8%;
-            box-shadow: 0 0 40px rgba(90, 58, 138, 0.5);
-            animation: float 20s infinite linear reverse;
+        /* 中等屏幕缩小 */
+        @media (max-width: 1199px) and (min-width: 769px) {
+            .planet-1 {
+                width: 200px;
+                height: 200px;
+                background: radial-gradient(circle at 30% 30%, #3a5a8a, #1a2a5a);
+                top: 15%;
+                right: 5%;
+                box-shadow: 0 0 30px rgba(58, 90, 138, 0.5);
+                animation: float 25s infinite linear;
+            }
+            
+            .planet-2 {
+                width: 150px;
+                height: 150px;
+                background: radial-gradient(circle at 40% 40%, #5a3a8a, #2a1a5a);
+                bottom: 20%;
+                left: 5%;
+                box-shadow: 0 0 25px rgba(90, 58, 138, 0.5);
+                animation: float 20s infinite linear reverse;
+            }
+        }
+        
+        /* 移动设备隐藏 */
+        @media (max-width: 768px) {
+            .planet {
+                display: none;
+            }
+        }
+        
+        /* 星球显示/隐藏按钮样式 */
+        .planet-toggle-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(26, 26, 74, 0.9);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            color: var(--accent-light);
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .planet-toggle-btn:hover {
+            background: rgba(74, 157, 227, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(74, 157, 227, 0.4);
+        }
+        
+        .planet-toggle-btn.active {
+            background: rgba(74, 157, 227, 0.3);
+            border-color: var(--accent-light);
+        }
+        
+        /* 星球隐藏类 */
+        .planet.hidden {
+            display: none !important;
         }
         
         @keyframes float {
@@ -597,10 +688,12 @@
         .missions-slider {
             display: flex;
             overflow-x: auto;
-            padding: 20px 10px;
+            padding: 20px 0;
             scrollbar-width: thin;
             scrollbar-color: var(--accent) var(--secondary);
             gap: 30px;
+            align-items: stretch;
+            justify-content: flex-start;
         }
         
         .missions-slider::-webkit-scrollbar {
@@ -619,30 +712,71 @@
         
         .mission-card {
             min-width: 350px;
-            background: rgba(26, 26, 74, 0.7);
-            border-radius: 15px;
+            max-width: 350px;
+            background: rgba(26, 26, 74, 0.95);
+            border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.3s;
-            border: 1px solid rgba(74, 157, 227, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(74, 157, 227, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            min-height: 450px;
         }
         
         .mission-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(74, 157, 227, 0.4);
         }
         
         .mission-image {
             height: 200px;
-            background: linear-gradient(135deg, rgba(74, 157, 227, 0.2) 0%, transparent 50%);
+            background: transparent;
             position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-bottom: none;
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 35px;
+            height: 35px;
+            background: rgba(26, 26, 74, 0.9);
+            border: 1px solid rgba(74, 157, 227, 0.4);
+            border-radius: 50%;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+            font-size: 16px;
+        }
+        
+        .favorite-btn:hover {
+            background: rgba(74, 157, 227, 0.2);
+            color: var(--accent-light);
+        }
+        
+        .favorite-btn.favorited {
+            color: #f44336;
         }
         
         .mission-content {
-            padding: 25px;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .mission-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
             color: var(--accent-light);
         }
         
@@ -650,27 +784,347 @@
             color: var(--text-dim);
             margin-bottom: 20px;
             font-size: 0.95rem;
+            line-height: 1.5;
+            flex-grow: 1;
         }
         
         .mission-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(74, 157, 227, 0.2);
         }
         
         .stat-item {
+            background: rgba(74, 157, 227, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
+            border: 1px solid rgba(74, 157, 227, 0.2);
+        }
+        
+        .stat-item .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+        }
+        
+        .stat-item .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-light);
         }
         
         .stat-item i {
             color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 5px;
         }
         
-        .stat-item span {
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .missions-slider {
+                padding: 20px 10px;
+                gap: 15px;
+            }
+            
+            .mission-card {
+                min-width: 280px;
+                max-width: 280px;
+                min-height: 400px;
+            }
+            
+            .mission-image {
+                height: 180px;
+            }
+            
+            .mission-content {
+                padding: 15px;
+            }
+            
+            .mission-content h3 {
+                font-size: 1.2rem;
+            }
+            
+            .mission-content p {
+                font-size: 0.85rem;
+            }
+            
+            .mission-stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-item {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 8px 12px;
+            }
+            
+            .stat-item .stat-label {
+                margin-bottom: 0;
+            }
+        }
+        
+        /* 大屏幕优化 */
+        @media (min-width: 1200px) {
+            .missions {
+                padding: 100px 0;
+            }
+        }
+        
+        /* 任务详情页面样式 */
+        .mission-detail-page {
+            position: fixed;
+            top: 0;
+            left: 100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: left 0.3s ease-in-out;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mission-detail-page.active {
+            left: 0;
+        }
+        
+        .mission-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(26, 26, 74, 0.8);
+            border-bottom: 1px solid rgba(74, 157, 227, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .btn-back {
+            background: rgba(74, 157, 227, 0.2);
+            border: 1px solid rgba(74, 157, 227, 0.4);
+            color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: rgba(74, 157, 227, 0.3);
+        }
+        
+        .mission-detail-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: rgba(74, 157, 227, 0.2);
+            border: 1px solid rgba(74, 157, 227, 0.4);
+            color: var(--accent);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(74, 157, 227, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .mission-counter {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+        
+        .mission-detail-main {
+            flex-grow: 1;
+            padding: 0;
+        }
+        
+        .mission-detail-slider {
+            display: flex;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .mission-detail-slide {
+            min-width: 100%;
+            padding: 40px 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mission-detail-header-content {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .mission-title {
+            font-size: 2.5rem;
+            color: var(--accent-light);
+            margin-bottom: 15px;
+        }
+        
+        .mission-description {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .mission-detail-image {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .mission-detail-image img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 1px solid rgba(74, 157, 227, 0.2);
+        }
+        
+        .mission-detail-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+        
+        .mission-section {
+            background: rgba(26, 26, 74, 0.5);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(74, 157, 227, 0.2);
+        }
+        
+        .mission-section h3 {
+            color: var(--accent-light);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .mission-overview {
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        
+        .mission-goals, .mission-challenges, .mission-agencies {
+            padding-left: 20px;
+        }
+        
+        .mission-goals li, .mission-challenges li, .mission-agencies li {
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .mission-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(74, 157, 227, 0.2);
+        }
+        
+        .timeline-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .timeline-year {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .timeline-event {
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+        
+        .mission-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(74, 157, 227, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
             color: var(--text-dim);
             font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            color: var(--accent-light);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* 移动端响应式设计 */
+        @media (max-width: 768px) {
+            .mission-detail-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            
+            .mission-detail-content {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+                gap: 20px;
+            }
+            
+            .mission-title {
+                font-size: 2rem;
+            }
+            
+            .mission-description {
+                font-size: 1rem;
+            }
+            
+            .mission-detail-slide {
+                padding: 20px;
+            }
+            
+            .timeline-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
         
         /* 3D太阳系样式 */
@@ -985,67 +1439,217 @@
         
         /* 探索历程样式 */
         .timeline {
-            padding: 120px 0;
+            padding: 100px 0;
             position: relative;
+            background-color: transparent;
         }
         
         .timeline-container {
             position: relative;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
         
+        /* 中央时间轴 */
         .timeline-container::after {
             content: '';
             position: absolute;
-            width: 6px;
+            width: 4px;
             background: linear-gradient(to bottom, var(--accent), var(--accent-light));
             top: 0;
             bottom: 0;
             left: 50%;
-            margin-left: -3px;
-            border-radius: 3px;
+            margin-left: -2px;
+            border-radius: 2px;
+            opacity: 0.8;
         }
         
         .timeline-item {
-            padding: 10px 40px;
+            padding: 30px 0;
             position: relative;
-            width: 50%;
+            width: 100%;
             box-sizing: border-box;
         }
         
-        .timeline-item:nth-child(odd) {
-            left: 0;
-        }
-        
-        .timeline-item:nth-child(even) {
-            left: 50%;
-        }
-        
+        /* 卡片容器 */
         .timeline-content {
-            padding: 25px;
-            background: rgba(26, 26, 74, 0.7);
-            border-radius: 10px;
-            border: 1px solid rgba(74, 157, 227, 0.2);
             position: relative;
+            width: 45%;
+            min-width: 300px;
+            padding: 25px;
+            background: rgba(26, 26, 74, 0.95);
+            border-radius: 8px;
+            border: 1px solid rgba(74, 157, 227, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
         
-        .timeline-content h3 {
-            font-size: 1.5rem;
+        /* 清除浮动 */
+        .timeline-container::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+        
+        /* 清除每个时间线项的浮动 */
+        .timeline-item::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+        
+        /* 确保卡片不会继承其他浮动 */
+        .timeline-content {
+            float: none !important;
+        }
+        
+        /* 左侧卡片样式 - 高优先级 */
+        .timeline-item .timeline-content.left {
+            float: left !important;
+            margin-right: 70px !important;
+            margin-left: 0 !important;
+        }
+        
+        /* 右侧卡片样式 - 高优先级 */
+        .timeline-item .timeline-content.right {
+            float: right !important;
+            margin-left: 70px !important;
+            margin-right: 0 !important;
+        }
+        
+        /* 时间线节点 */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            z-index: 2;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 35px;
+        }
+        
+        /* 连接箭头 */
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            top: 30px;
+            z-index: 1;
+        }
+        
+        /* 左侧卡片箭头 */
+        .timeline-content.left::before {
+            right: -10px;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent rgba(26, 26, 74, 0.95);
+        }
+        
+        /* 右侧卡片箭头 */
+        .timeline-content.right::before {
+            left: -10px;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent rgba(26, 26, 74, 0.95) transparent transparent;
+        }
+        
+        /* 日期标签 */
+        .timeline-date {
+            font-size: 0.85rem;
+            color: var(--accent);
             margin-bottom: 10px;
-            color: var(--accent-light);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
+        .timeline-date i {
+            font-size: 0.9rem;
+        }
+        
+        /* 标题样式 */
+        .timeline-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+        
+        /* 内容样式 */
         .timeline-content p {
             color: var(--text-dim);
-            font-size: 0.95rem;
-            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
         }
         
-        .timeline-date {
-            font-size: 0.9rem;
-            color: var(--accent);
-            margin-top: 15px;
+        /* 确保文字正常换行 */
+        .timeline-content {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+        
+        .timeline-content * {
+            word-break: break-word;
+            hyphens: auto;
+            white-space: normal;
+        }
+        
+        /* 小屏幕单栏布局 */
+        @media (max-width: 992px) {
+            .timeline {
+                padding: 80px 0;
+            }
+            
+            .timeline-container::after {
+                left: 30px;
+            }
+            
+            /* 重置所有卡片为左浮动 */
+            .timeline-item .timeline-content.left,
+            .timeline-item .timeline-content.right {
+                float: left !important;
+                width: calc(100% - 80px) !important;
+                margin-left: 50px !important;
+                margin-right: 20px !important;
+            }
+            
+            /* 重置所有箭头为左侧箭头 */
+            .timeline-content.left::before,
+            .timeline-content.right::before {
+                left: -10px !important;
+                right: auto !important;
+                border-width: 10px 10px 10px 0 !important;
+                border-color: transparent rgba(26, 26, 74, 0.95) transparent transparent !important;
+            }
+            
+            .timeline-item::before {
+                left: 30px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .timeline-item .timeline-content.left,
+            .timeline-item .timeline-content.right {
+                width: calc(100% - 70px) !important;
+                margin-left: 40px !important;
+            }
+            
+            .timeline-container::after {
+                left: 20px;
+            }
+            
+            .timeline-item::before {
+                left: 20px;
+            }
         }
         
         /* 太空知识大挑战样式 */
@@ -1821,14 +2425,11 @@
 <section class="hero" id="home">
     <div class="container">
         <div class="hero-content">
-            <h1>探索宇宙的奥秘</h1>
-            <p>欢迎来到宇宙探索网站，在这里您可以了解最新的太空任务、探索3D太阳系模型、体验太空战机游戏，以及挑战太空知识大挑战！</p>
+            <h1>穿越星际的旅程</h1>
+            <p>探索宇宙的奥秘，发现未知的星系，体验前所未有的宇宙冒险。加入我们，开启您的星际探索之旅。</p>
             <div class="hero-buttons">
-                <a href="#missions" class="btn">
-                    <i class="fas fa-rocket"></i> 探索任务
-                </a>
-                <a href="#quiz" class="btn btn-primary">
-                    知识挑战 <i class="fas fa-arrow-right"></i>
+                <a href="#features" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> 开始旅程
                 </a>
             </div>
         </div>
@@ -1836,6 +2437,10 @@
         <div class="planet planet-1"></div>
         <div class="planet planet-2"></div>
     </div>
+    <!-- 星球显示/隐藏控制按钮 -->
+    <button class="planet-toggle-btn" id="planet-toggle-btn" title="显示/隐藏星球">
+        <i class="fas fa-globe"></i>
+    </button>
 </section>
 
 <!-- 探索主题区域 -->
@@ -1895,91 +2500,95 @@
         <h2 class="section-title">太空任务</h2>
         <div class="missions-slider">
             <div class="mission-card" data-mission="1">
-                <div class="mission-image" style="background-image: url('images/missions/mar-colony.jpg');"></div>
+                <div class="mission-image" style="background-image: url('images/missions/mar-colony.jpg');">
+                    <div class="favorite-btn" data-mission="1"><i class="far fa-heart"></i></div>
+                </div>
                 <div class="mission-content">
                     <h3>火星殖民计划</h3>
                     <p>建立人类在火星上的第一个永久定居点，为未来的星际移民奠定基础。</p>
                     <div class="mission-stats">
                         <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>2025-2035</span>
+                            <div class="stat-label">目标年份</div>
+                            <div class="stat-value">2030</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-users"></i>
-                            <span>100+ 宇航员</span>
+                            <div class="stat-label">宇航员</div>
+                            <div class="stat-value">12</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>火星</span>
+                            <div class="stat-label">准备度</div>
+                            <div class="stat-value">98%</div>
                         </div>
                     </div>
-                    <div class="favorite-btn" data-mission="1"><i class="far fa-heart"></i></div>
                 </div>
             </div>
             <div class="mission-card" data-mission="2">
-                <div class="mission-image" style="background-image: url('images/missions/jupiter-mission.jpg');"></div>
+                <div class="mission-image" style="background-image: url('images/missions/jupiter-mission.jpg');">
+                    <div class="favorite-btn" data-mission="2"><i class="far fa-heart"></i></div>
+                </div>
                 <div class="mission-content">
                     <h3>木星探测任务</h3>
                     <p>深入探索木星及其卫星系统，研究这个气态巨行星的大气、磁场和卫星环境。</p>
                     <div class="mission-stats">
                         <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>2028-2037</span>
+                            <div class="stat-label">发射年份</div>
+                            <div class="stat-value">2028</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-rocket"></i>
-                            <span>朱诺号</span>
+                            <div class="stat-label">年任务期</div>
+                            <div class="stat-value">5</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>木星</span>
+                            <div class="stat-label">准备度</div>
+                            <div class="stat-value">85%</div>
                         </div>
                     </div>
-                    <div class="favorite-btn" data-mission="2"><i class="far fa-heart"></i></div>
                 </div>
             </div>
             <div class="mission-card" data-mission="3">
-                <div class="mission-image" style="background-image: url('images/missions/exoplant-search.jpg');"></div>
+                <div class="mission-image" style="background-image: url('images/missions/exoplant-search.jpg');">
+                    <div class="favorite-btn" data-mission="3"><i class="far fa-heart"></i></div>
+                </div>
                 <div class="mission-content">
                     <h3>系外行星搜寻</h3>
                     <p>使用先进望远镜寻找类地系外行星，评估它们是否具备支持生命的条件。</p>
                     <div class="mission-stats">
                         <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>进行中</span>
+                            <div class="stat-label">状态</div>
+                            <div class="stat-value">进行中</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-search"></i>
-                            <span>1000+ 行星</span>
+                            <div class="stat-label">已发现</div>
+                            <div class="stat-value">4,200+</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>银河系</span>
+                            <div class="stat-label">运行中</div>
+                            <div class="stat-value">100%</div>
                         </div>
                     </div>
-                    <div class="favorite-btn" data-mission="3"><i class="far fa-heart"></i></div>
                 </div>
             </div>
             <div class="mission-card" data-mission="4">
-                <div class="mission-image" style="background-image: url('images/missions/asteroid-mining.jpg');"></div>
+                <div class="mission-image" style="background-image: url('images/missions/asteroid-mining.jpg');">
+                    <div class="favorite-btn" data-mission="4"><i class="far fa-heart"></i></div>
+                </div>
                 <div class="mission-content">
                     <h3>小行星采矿</h3>
                     <p>开发小行星资源，获取稀有矿物和水资源，为宇宙探索提供可持续的物质支持。</p>
                     <div class="mission-stats">
                         <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>2027-2035</span>
+                            <div class="stat-label">目标年份</div>
+                            <div class="stat-value">2035</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-diamond"></i>
-                            <span>稀有矿物</span>
+                            <div class="stat-label">目标小行星</div>
+                            <div class="stat-value">3</div>
                         </div>
                         <div class="stat-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>小行星带</span>
+                            <div class="stat-label">资源类型</div>
+                            <div class="stat-value">稀有矿物</div>
                         </div>
                     </div>
-                    <div class="favorite-btn" data-mission="4"><i class="far fa-heart"></i></div>
                 </div>
             </div>
         </div>
@@ -2075,76 +2684,76 @@
 </section>
 
 <!-- 探索历程区域 -->
-<section class="timeline" id="timeline">
-    <div class="container">
-        <h2 class="section-title">探索历程</h2>
-        <div class="timeline-container">
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>人类首次登月</h3>
-                    <p>阿波罗11号成功将尼尔·阿姆斯特朗和巴兹·奥尔德林送上月球，成为人类首次登月任务。</p>
-                    <div class="timeline-date">1969年7月</div>
+    <section class="timeline" id="timeline">
+        <div class="container">
+            <h2 class="section-title">探索历程</h2>
+            <div class="timeline-container">
+                <div class="timeline-item">
+                    <div class="timeline-content left">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 1969年7月</div>
+                        <h3>人类首次登月</h3>
+                        <p>阿波罗11号成功将尼尔·阿姆斯特朗和巴兹·奥尔德林送上月球，成为人类首次登月任务。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>国际空间站建立</h3>
-                    <p>国际空间站开始组装，成为人类在太空中的永久居住地和研究实验室。</p>
-                    <div class="timeline-date">1998年11月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content right">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 1998年11月</div>
+                        <h3>国际空间站建立</h3>
+                        <p>国际空间站开始组装，成为人类在太空中的永久居住地和研究实验室。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>好奇号火星漫游车</h3>
-                    <p>好奇号火星漫游车成功登陆火星，开始对火星的地质和气候进行详细研究。</p>
-                    <div class="timeline-date">2012年8月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content left">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2012年8月</div>
+                        <h3>好奇号火星漫游车</h3>
+                        <p>好奇号火星漫游车成功登陆火星，开始对火星的地质和气候进行详细研究。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>詹姆斯·韦伯太空望远镜</h3>
-                    <p>詹姆斯·韦伯太空望远镜发射成功，开始探索宇宙的最早期星系和系外行星。</p>
-                    <div class="timeline-date">2021年12月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content right">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2021年12月</div>
+                        <h3>詹姆斯·韦伯太空望远镜</h3>
+                        <p>詹姆斯·韦伯太空望远镜发射成功，开始探索宇宙的最早期星系和系外行星。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>新一代太空望远镜发射</h3>
-                    <p>成功发射了能够观测遥远星系和系外行星大气成分的先进太空望远镜。</p>
-                    <div class="timeline-date">2023年10月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content left">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2023年10月</div>
+                        <h3>新一代太空望远镜发射</h3>
+                        <p>成功发射了能够观测遥远星系和系外行星大气成分的先进太空望远镜。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>月球基地建设开始</h3>
-                    <p>启动了月球永久基地的建设工作，为未来的深空探索提供前哨站。</p>
-                    <div class="timeline-date">2024年3月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content right">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2024年3月</div>
+                        <h3>月球基地建设开始</h3>
+                        <p>启动了月球永久基地的建设工作，为未来的深空探索提供前哨站。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>首次商业太空旅行</h3>
-                    <p>实现了首次完全商业化的太空旅行，让普通人也能体验太空飞行。</p>
-                    <div class="timeline-date">2025年7月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content left">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2025年7月</div>
+                        <h3>首次商业太空旅行</h3>
+                        <p>实现了首次完全商业化的太空旅行，让普通人也能体验太空飞行。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>火星样本返回任务</h3>
-                    <p>成功将从火星采集的岩石和土壤样本带回地球，进行详细分析。</p>
-                    <div class="timeline-date">2026年11月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content right">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2026年11月</div>
+                        <h3>火星样本返回任务</h3>
+                        <p>成功将从火星采集的岩石和土壤样本带回地球，进行详细分析。</p>
+                    </div>
                 </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3>金星大气探测</h3>
-                    <p>发射探测器研究金星浓厚大气层，寻找可能存在的微生物生命迹象。</p>
-                    <div class="timeline-date">2028年5月</div>
+                <div class="timeline-item">
+                    <div class="timeline-content left">
+                        <div class="timeline-date"><i class="fas fa-calendar-alt"></i> 2028年5月</div>
+                        <h3>金星大气探测</h3>
+                        <p>发射探测器研究金星浓厚大气层，寻找可能存在的微生物生命迹象。</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
 <!-- 太空知识大挑战区域 -->
 <section class="quiz" id="quiz">
@@ -2232,16 +2841,7 @@
                     <li><a href="#contact"><i class="fas fa-envelope"></i> 联系我们</a></li>
                 </ul>
             </div>
-            <div class="footer-links-container">
-                <h3 class="footer-heading">服务</h3>
-                <ul class="footer-links">
-                    <li><a href="#"><i class="fas fa-plane"></i> 太空旅行</a></li>
-                    <li><a href="#"><i class="fas fa-telescope"></i> 天文观测</a></li>
-                    <li><a href="#"><i class="fas fa-graduation-cap"></i> 教育培训</a></li>
-                    <li><a href="#"><i class="fas fa-flask"></i> 科研合作</a></li>
-                    <li><a href="#"><i class="fas fa-vr-cardboard"></i> 虚拟体验</a></li>
-                </ul>
-            </div>
+
             <div class="footer-links-container">
                 <h3 class="footer-heading">联系信息</h3>
                 <ul class="footer-links">
@@ -2374,43 +2974,73 @@
     </div>
 </div>
 
-<!-- 任务详情模态框 -->
-<div class="modal" id="mission-modal">
-    <div class="modal-content">
-        <button class="close-modal" id="close-mission-modal">&times;</button>
-        <div class="modal-header">
-            <h2 id="mission-modal-title">任务详情</h2>
+<!-- 任务详情页面 - 滑动浏览效果 -->
+<div class="mission-detail-page" id="mission-detail-page">
+    <div class="mission-detail-header">
+        <button class="btn btn-back" id="mission-back-btn"><i class="fas fa-arrow-left"></i> 返回任务列表</button>
+        <div class="mission-detail-nav">
+            <button class="nav-btn" id="mission-prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <div class="mission-counter">
+                <span id="current-mission">1</span> / <span id="total-missions">4</span>
+            </div>
+            <button class="nav-btn" id="mission-next-btn"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <div class="mission-detail-content">
-            <div class="mission-detail-image">
-                <img src="" alt="任务图片" id="mission-detail-image">
-            </div>
-            <div class="mission-detail-section">
-                <h3 id="mission-modal-description">任务描述</h3>
-            </div>
-            <div class="mission-detail-section">
-                <h3>任务概述</h3>
-                <p id="mission-overview">任务概述将显示在这里...</p>
-            </div>
-            <div class="mission-detail-section">
-                <h3>科学目标</h3>
-                <ul id="mission-science-goals"></ul>
-            </div>
-            <div class="mission-detail-section">
-                <h3>探索历程</h3>
-                <div id="mission-timeline" class="mission-detail-stats"></div>
-            </div>
-            <div class="mission-detail-section">
-                <h3>技术挑战</h3>
-                <ul id="mission-challenges"></ul>
-            </div>
-            <div class="mission-detail-section">
-                <h3>参与机构</h3>
-                <ul id="mission-agencies"></ul>
-            </div>
+    </div>
+    <div class="mission-detail-main">
+        <div class="mission-detail-slider" id="mission-detail-slider">
+            <!-- 任务详情内容将通过JavaScript动态填充 -->
         </div>
     </div>
 </div>
+
+<!-- 任务详情模板 - 用于动态生成内容 -->
+<template id="mission-detail-template">
+    <div class="mission-detail-slide">
+        <div class="mission-detail-header-content">
+            <h2 class="mission-title">{{title}}</h2>
+            <p class="mission-description">{{description}}</p>
+        </div>
+        <div class="mission-detail-image">
+            <img src="{{image}}" alt="{{title}}">
+        </div>
+        <div class="mission-detail-content">
+            <div class="mission-section">
+                <h3>任务概述</h3>
+                <p class="mission-overview">{{overview}}</p>
+            </div>
+            <div class="mission-section">
+                <h3>科学目标</h3>
+                <ul class="mission-goals">
+                    {{scienceGoals}}
+                </ul>
+            </div>
+            <div class="mission-section">
+                <h3>任务探索历程</h3>
+                <div class="mission-timeline">
+                    {{timeline}}
+                </div>
+            </div>
+            <div class="mission-section">
+                <h3>技术挑战</h3>
+                <ul class="mission-challenges">
+                    {{challenges}}
+                </ul>
+            </div>
+            <div class="mission-section">
+                <h3>参与机构</h3>
+                <ul class="mission-agencies">
+                    {{agencies}}
+                </ul>
+            </div>
+            <div class="mission-section">
+                <h3>任务统计</h3>
+                <div class="mission-stats">
+                    {{stats}}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
 
 <!-- 用户欢迎区域 -->
 <div id="user-welcome-section" style="display: none;">
@@ -2434,6 +3064,143 @@
 
 <!-- 太空知识大挑战修复脚本 -->
 <script src="quiz-fix.js"></script>
+
+<!-- 星球显示/隐藏控制脚本 -->
+    <script>
+        // 星球显示/隐藏控制
+        const planetToggleBtn = document.getElementById('planet-toggle-btn');
+        const planets = document.querySelectorAll('.planet');
+        
+        // 初始化：检查本地存储中的显示状态
+        const isPlanetsVisible = localStorage.getItem('planetsVisible') !== 'false';
+        if (!isPlanetsVisible) {
+            planets.forEach(planet => planet.classList.add('hidden'));
+            planetToggleBtn.classList.add('active');
+        }
+        
+        // 点击按钮切换星球显示/隐藏状态
+        planetToggleBtn.addEventListener('click', () => {
+            const isActive = planetToggleBtn.classList.contains('active');
+            
+            if (isActive) {
+                // 显示星球
+                planets.forEach(planet => planet.classList.remove('hidden'));
+                planetToggleBtn.classList.remove('active');
+                localStorage.setItem('planetsVisible', 'true');
+            } else {
+                // 隐藏星球
+                planets.forEach(planet => planet.classList.add('hidden'));
+                planetToggleBtn.classList.add('active');
+                localStorage.setItem('planetsVisible', 'false');
+            }
+        });
+    </script>
+    
+    <!-- 动态星空背景脚本 -->
+    <script>
+        // 动态星空背景生成器
+        class DynamicStarfield {
+            constructor(containerId, starCount = 200) {
+                this.container = document.getElementById(containerId);
+                this.starCount = starCount;
+                this.stars = [];
+                this.init();
+            }
+            
+            init() {
+                // 生成星星
+                this.createStars();
+                // 启动动画
+                this.animate();
+                // 监听窗口大小变化
+                window.addEventListener('resize', this.handleResize.bind(this));
+            }
+            
+            createStars() {
+                for (let i = 0; i < this.starCount; i++) {
+                    const star = this.createStar();
+                    this.stars.push(star);
+                    this.container.appendChild(star.element);
+                }
+            }
+            
+            createStar() {
+                const element = document.createElement('div');
+                element.className = 'star';
+                
+                // 随机位置
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // 随机大小
+                const size = Math.random() * 2 + 0.5;
+                
+                // 随机亮度
+                const brightness = Math.random() * 0.8 + 0.2;
+                
+                // 随机闪烁频率
+                const blinkSpeed = Math.random() * 5 + 2;
+                
+                // 随机移动速度
+                const speed = Math.random() * 0.05 + 0.01;
+                
+                // 设置初始样式
+                element.style.left = `${x}%`;
+                element.style.top = `${y}%`;
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.opacity = brightness;
+                
+                // 应用闪烁动画
+                element.style.animation = `twinkle ${blinkSpeed}s infinite`;
+                
+                return {
+                    element,
+                    x,
+                    y,
+                    size,
+                    brightness,
+                    blinkSpeed,
+                    speed,
+                    direction: Math.random() * Math.PI * 2 // 随机移动方向
+                };
+            }
+            
+            animate() {
+                this.stars.forEach(star => {
+                    // 移动星星
+                    star.x += Math.cos(star.direction) * star.speed;
+                    star.y += Math.sin(star.direction) * star.speed;
+                    
+                    // 边界检测
+                    if (star.x < -5) star.x = 105;
+                    if (star.x > 105) star.x = -5;
+                    if (star.y < -5) star.y = 105;
+                    if (star.y > 105) star.y = -5;
+                    
+                    // 更新位置
+                    star.element.style.left = `${star.x}%`;
+                    star.element.style.top = `${star.y}%`;
+                });
+                
+                // 继续动画
+                requestAnimationFrame(this.animate.bind(this));
+            }
+            
+            handleResize() {
+                // 窗口大小变化时重新布局
+                this.stars.forEach(star => {
+                    star.element.style.left = `${star.x}%`;
+                    star.element.style.top = `${star.y}%`;
+                });
+            }
+        }
+        
+        // 初始化动态星空
+        document.addEventListener('DOMContentLoaded', () => {
+            new DynamicStarfield('stars', 300);
+        });
+    </script>
 
 <!-- 主应用脚本 - 统一管理所有功能模块 -->
 <script src="app.js"></script>

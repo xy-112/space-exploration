@@ -14,28 +14,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 检查所有必要的DOM元素是否存在
     console.log('检查DOM元素...');
-    const requiredIds = [
-        'quiz', 'quiz-progress', 'current-question', 'total-questions',
-        'quiz-score', 'quiz-question', 'quiz-options', 'quiz-prev',
-        'quiz-next', 'quiz-submit', 'quiz-results', 'final-score',
-        'max-score', 'results-message', 'quiz-restart', 'quiz-share'
-    ];
     
-    const missingIds = [];
-    requiredIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (!element) {
-            missingIds.push(id);
-            console.error(`DOM元素缺失: #${id}`);
-        } else {
-            console.log(`DOM元素找到: #${id}`);
-        }
-    });
+    // 定义必要的DOM元素，允许部分元素缺失
+    const elements = {
+        quiz: document.getElementById('quiz'),
+        quizContainer: document.querySelector('.quiz-container'),
+        quizProgress: document.getElementById('quiz-progress'),
+        quizScoreEl: document.getElementById('quiz-score'),
+        quizQuestionEl: document.getElementById('quiz-question'),
+        quizOptionsEl: document.getElementById('quiz-options'),
+        quizPrevBtn: document.getElementById('quiz-prev'),
+        quizNextBtn: document.getElementById('quiz-next'),
+        quizSubmitBtn: document.getElementById('quiz-submit'),
+        quizResults: document.getElementById('quiz-results'),
+        finalScoreEl: document.getElementById('final-score'),
+        maxScoreEl: document.getElementById('max-score'),
+        resultsMessageEl: document.getElementById('results-message'),
+        quizRestartBtn: document.getElementById('quiz-restart'),
+        quizShareBtn: document.getElementById('quiz-share')
+    };
     
-    if (missingIds.length > 0) {
-        console.error(`共缺失 ${missingIds.length} 个DOM元素，无法初始化太空知识大挑战`);
+    // 检查核心元素是否存在
+    const coreElements = ['quiz', 'quizQuestionEl', 'quizOptionsEl', 'quizPrevBtn', 'quizNextBtn'];
+    const missingCoreElements = coreElements.filter(key => !elements[key]);
+    
+    if (missingCoreElements.length > 0) {
+        console.error(`核心DOM元素缺失: ${missingCoreElements.join(', ')}，无法初始化太空知识大挑战`);
         return;
     }
+    
+    console.log('核心DOM元素检查通过，开始初始化功能...');
     
     console.log('所有DOM元素检查通过，开始初始化功能...');
     
@@ -93,49 +101,94 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
     
-    // 获取DOM元素
-    const quizContainer = document.getElementById('quiz');
-    if (!quizContainer) {
-        console.error('未找到quiz元素');
-        return;
+    // 添加当前问题计数器元素
+    let currentQuestionEl, totalQuestionsEl;
+    
+    // 检查并创建当前问题计数器元素
+    function checkAndCreateQuestionCounter() {
+        // 检查是否存在当前问题计数器
+        const existingCounter = document.querySelector('.quiz-question-counter');
+        
+        if (existingCounter) {
+            currentQuestionEl = existingCounter.querySelector('.current-question');
+            totalQuestionsEl = existingCounter.querySelector('.total-questions');
+        } else {
+            // 创建当前问题计数器元素
+            const counterContainer = document.createElement('div');
+            counterContainer.className = 'quiz-question-counter';
+            counterContainer.innerHTML = `
+                第 <span class="current-question">1</span> / <span class="total-questions">${quizQuestions.length}</span> 题
+            `;
+            
+            // 将计数器添加到quiz-header中
+            const quizHeader = document.querySelector('.quiz-header');
+            if (quizHeader) {
+                quizHeader.appendChild(counterContainer);
+                currentQuestionEl = counterContainer.querySelector('.current-question');
+                totalQuestionsEl = counterContainer.querySelector('.total-questions');
+            } else {
+                // 如果没有quiz-header，则创建一个简单的计数器并添加到quiz容器中
+                currentQuestionEl = document.createElement('span');
+                currentQuestionEl.className = 'current-question';
+                currentQuestionEl.textContent = '1';
+                
+                totalQuestionsEl = document.createElement('span');
+                totalQuestionsEl.className = 'total-questions';
+                totalQuestionsEl.textContent = quizQuestions.length;
+                
+                const separator = document.createElement('span');
+                separator.textContent = ' / ';
+                
+                elements.quiz.appendChild(currentQuestionEl);
+                elements.quiz.appendChild(separator);
+                elements.quiz.appendChild(totalQuestionsEl);
+            }
+        }
     }
     
-    const quizProgress = document.getElementById('quiz-progress');
-    const currentQuestionEl = document.getElementById('current-question');
-    const totalQuestionsEl = document.getElementById('total-questions');
-    const quizScoreEl = document.getElementById('quiz-score');
-    const quizQuestionEl = document.getElementById('quiz-question');
-    const quizOptionsEl = document.getElementById('quiz-options');
-    const quizPrevBtn = document.getElementById('quiz-prev');
-    const quizNextBtn = document.getElementById('quiz-next');
-    const quizSubmitBtn = document.getElementById('quiz-submit');
-    const quizResults = document.getElementById('quiz-results');
-    const finalScoreEl = document.getElementById('final-score');
-    const maxScoreEl = document.getElementById('max-score');
-    const resultsMessageEl = document.getElementById('results-message');
-    const quizRestartBtn = document.getElementById('quiz-restart');
-    const quizShareBtn = document.getElementById('quiz-share');
+    // 创建并添加当前问题计数器
+    checkAndCreateQuestionCounter();
     
-    // 检查所有必要元素是否存在
-    const requiredElements = [
-        quizProgress, currentQuestionEl, totalQuestionsEl, quizScoreEl,
-        quizQuestionEl, quizOptionsEl, quizPrevBtn, quizNextBtn,
-        quizSubmitBtn, quizResults, finalScoreEl, maxScoreEl,
-        resultsMessageEl, quizRestartBtn, quizShareBtn
-    ];
-    
-    const missingElements = requiredElements.filter(el => !el);
-    if (missingElements.length > 0) {
-        console.error('缺少必要的DOM元素');
-        return;
-    }
-    
-    console.log('所有必要元素已找到，初始化变量...');
+    console.log('所有必要元素已准备就绪，初始化变量...');
     
     // 初始化变量
     let currentQuestionIndex = 0;
     let userAnswers = new Array(quizQuestions.length).fill(null);
     let score = 0;
+    
+    // API请求函数（如果需要保存成绩到数据库）
+    async function saveQuizScore(score, totalQuestions) {
+        if (!window.authManager || !window.authManager.getCurrentUser()) {
+            // 用户未登录，不保存成绩
+            console.log('用户未登录，不保存成绩');
+            return;
+        }
+        
+        try {
+            // 调用后端API保存成绩
+            const response = await fetch('/api/quiz/save-score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    score: score,
+                    total: totalQuestions,
+                    date: new Date().toISOString()
+                })
+            });
+            
+            if (response.ok) {
+                console.log('成绩保存成功');
+                window.app.showNotification('成绩已保存到您的个人资料', 'success');
+            } else {
+                console.error('成绩保存失败');
+            }
+        } catch (error) {
+            console.error('保存成绩时发生错误:', error);
+        }
+    }
     
     console.log('初始化测验...');
     
@@ -147,30 +200,55 @@ document.addEventListener('DOMContentLoaded', function() {
         score = 0;
         updateQuizUI();
         showQuestion();
-        quizResults.style.display = 'none';
-        // quizContainer本身就是quiz-container元素，不需要再查询
-        quizContainer.style.display = 'block';
+        
+        // 隐藏结果，显示问题
+        if (elements.quizResults) {
+            elements.quizResults.style.display = 'none';
+        }
+        if (elements.quizContainer) {
+            elements.quizContainer.style.display = 'block';
+        } else if (elements.quiz) {
+            elements.quiz.style.display = 'block';
+        }
     }
     
     // 更新测验UI
     function updateQuizUI() {
-        currentQuestionEl.textContent = currentQuestionIndex + 1;
-        totalQuestionsEl.textContent = quizQuestions.length;
-        quizScoreEl.textContent = score;
+        if (currentQuestionEl) {
+            currentQuestionEl.textContent = currentQuestionIndex + 1;
+        }
+        if (totalQuestionsEl) {
+            totalQuestionsEl.textContent = quizQuestions.length;
+        }
+        if (elements.quizScoreEl) {
+            elements.quizScoreEl.textContent = score;
+        }
     
         // 更新进度条
-        const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
-        quizProgress.style.width = `${progress}%`;
+        if (elements.quizProgress) {
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            elements.quizProgress.style.width = `${progress}%`;
+        }
     
         // 更新按钮状态
-        quizPrevBtn.disabled = currentQuestionIndex === 0;
+        if (elements.quizPrevBtn) {
+            elements.quizPrevBtn.disabled = currentQuestionIndex === 0;
+        }
     
         if (currentQuestionIndex === quizQuestions.length - 1) {
-            quizNextBtn.style.display = 'none';
-            quizSubmitBtn.style.display = 'inline-flex';
+            if (elements.quizNextBtn) {
+                elements.quizNextBtn.style.display = 'none';
+            }
+            if (elements.quizSubmitBtn) {
+                elements.quizSubmitBtn.style.display = 'inline-flex';
+            }
         } else {
-            quizNextBtn.style.display = 'inline-flex';
-            quizSubmitBtn.style.display = 'none';
+            if (elements.quizNextBtn) {
+                elements.quizNextBtn.style.display = 'inline-flex';
+            }
+            if (elements.quizSubmitBtn) {
+                elements.quizSubmitBtn.style.display = 'none';
+            }
         }
     }
     
@@ -178,22 +256,27 @@ document.addEventListener('DOMContentLoaded', function() {
     function showQuestion() {
         console.log('显示问题:', currentQuestionIndex);
         const question = quizQuestions[currentQuestionIndex];
-        quizQuestionEl.textContent = question.question;
+        
+        if (elements.quizQuestionEl) {
+            elements.quizQuestionEl.textContent = question.question;
+        }
     
         // 清空选项容器
-        quizOptionsEl.innerHTML = '';
-    
-        // 创建选项
-        question.options.forEach((option, index) => {
-            const optionElement = document.createElement('button');
-            optionElement.className = 'quiz-option';
-            if (userAnswers[currentQuestionIndex] === index) {
-                optionElement.classList.add('selected');
-            }
-            optionElement.textContent = option;
-            optionElement.addEventListener('click', () => selectOption(index));
-            quizOptionsEl.appendChild(optionElement);
-        });
+        if (elements.quizOptionsEl) {
+            elements.quizOptionsEl.innerHTML = '';
+        
+            // 创建选项
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('button');
+                optionElement.className = 'quiz-option';
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectOption(index));
+                elements.quizOptionsEl.appendChild(optionElement);
+            });
+        }
     
         updateQuizUI();
     }
@@ -203,14 +286,16 @@ document.addEventListener('DOMContentLoaded', function() {
         userAnswers[currentQuestionIndex] = optionIndex;
     
         // 更新UI显示选中的选项
-        const options = quizOptionsEl.querySelectorAll('.quiz-option');
-        options.forEach((option, index) => {
-            if (index === optionIndex) {
-                option.classList.add('selected');
-            } else {
-                option.classList.remove('selected');
-            }
-        });
+        if (elements.quizOptionsEl) {
+            const options = elements.quizOptionsEl.querySelectorAll('.quiz-option');
+            options.forEach((option, index) => {
+                if (index === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
     }
     
     // 显示结果
@@ -224,8 +309,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     
         // 更新结果UI
-        finalScoreEl.textContent = score;
-        maxScoreEl.textContent = quizQuestions.length;
+        if (elements.finalScoreEl) {
+            elements.finalScoreEl.textContent = score;
+        }
+        if (elements.maxScoreEl) {
+            elements.maxScoreEl.textContent = quizQuestions.length;
+        }
     
         // 根据得分显示不同消息
         let message = "";
@@ -239,51 +328,85 @@ document.addEventListener('DOMContentLoaded', function() {
             message = "别灰心！宇宙浩瀚无垠，还有很多知识等待您去发现。继续学习，您会越来越了解太空的！";
         }
     
-        resultsMessageEl.textContent = message;
+        if (elements.resultsMessageEl) {
+            elements.resultsMessageEl.textContent = message;
+        }
     
         // 显示结果，隐藏问题
-        quizContainer.style.display = 'none';
-        quizResults.style.display = 'block';
+        if (elements.quizContainer) {
+            elements.quizContainer.style.display = 'none';
+        } else if (elements.quiz) {
+            elements.quiz.style.display = 'none';
+        }
+        if (elements.quizResults) {
+            elements.quizResults.style.display = 'block';
+        }
+        
+        // 保存成绩到数据库（如果用户已登录）
+        saveQuizScore(score, quizQuestions.length);
     }
     
     // 事件监听器
-    quizPrevBtn.addEventListener('click', () => {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            showQuestion();
-        }
-    });
+    if (elements.quizPrevBtn) {
+        elements.quizPrevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        });
+    }
     
-    quizNextBtn.addEventListener('click', () => {
-        if (currentQuestionIndex < quizQuestions.length - 1) {
-            currentQuestionIndex++;
-            showQuestion();
-        }
-    });
+    if (elements.quizNextBtn) {
+        elements.quizNextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        });
+    }
     
-    quizSubmitBtn.addEventListener('click', showResults);
+    if (elements.quizSubmitBtn) {
+        elements.quizSubmitBtn.addEventListener('click', showResults);
+    }
     
-    quizRestartBtn.addEventListener('click', initQuiz);
+    if (elements.quizRestartBtn) {
+        elements.quizRestartBtn.addEventListener('click', initQuiz);
+    }
     
-    quizShareBtn.addEventListener('click', () => {
-        // 简单的分享功能
-        const shareText = `我在宇宙探索网站的太空知识大挑战中获得了 ${score}/${quizQuestions.length} 分！你也来试试吧！`;
-        if (navigator.share) {
-            navigator.share({
-                title: '太空知识大挑战',
-                text: shareText,
-                url: window.location.href
-            });
-        } else {
-            // 如果不支持Web Share API，则复制到剪贴板
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert('成绩已复制到剪贴板，快去分享给朋友吧！');
-            });
-        }
-    });
+    if (elements.quizShareBtn) {
+        elements.quizShareBtn.addEventListener('click', () => {
+            // 简单的分享功能
+            const shareText = `我在宇宙探索网站的太空知识大挑战中获得了 ${score}/${quizQuestions.length} 分！你也来试试吧！`;
+            if (navigator.share) {
+                navigator.share({
+                    title: '太空知识大挑战',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                // 如果不支持Web Share API，则复制到剪贴板
+                navigator.clipboard.writeText(shareText).then(() => {
+                    if (window.app && window.app.showNotification) {
+                        window.app.showNotification('成绩已复制到剪贴板，快去分享给朋友吧！', 'success');
+                    } else {
+                        alert('成绩已复制到剪贴板，快去分享给朋友吧！');
+                    }
+                });
+            }
+        });
+    }
     
     // 调用初始化函数
     initQuiz();
     
     console.log('太空知识大挑战初始化完成！');
+    
+    // 给window对象暴露一些方法，方便其他脚本调用
+    if (!window.quizManager) {
+        window.quizManager = {
+            initQuiz: initQuiz,
+            getScore: () => score,
+            getTotalQuestions: () => quizQuestions.length
+        };
+    }
 });
