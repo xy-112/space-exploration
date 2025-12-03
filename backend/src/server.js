@@ -1,111 +1,36 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const morgan = require('morgan');
+// 在 server.js 顶部
 const path = require('path');
-require('dotenv').config();
+const fs = require('fs');
 
-// 导入配置
-const { connectDB } = require('./utils/database');
-const errorHandler = require('./middleware/errorHandler');
+// 使用绝对路径
+const ABSOLUTE_BASE_PATH = 'D:\\网页搭建\\space-exploration';
+const FRONTEND_PATH = path.join(ABSOLUTE_BASE_PATH, 'public', 'my-site');
 
-// 导入路由
-const authRoutes = require('./routes/authRoutes');
-const missionRoutes = require('./routes/missionRoutes');
-const userRoutes = require('./routes/userRoutes');
+console.log('[配置] 项目基础路径:', ABSOLUTE_BASE_PATH);
+console.log('[配置] 前端文件路径:', FRONTEND_PATH);
 
-// 初始化应用
-const app = express();
+// 检查前端路径
+if (fs.existsSync(FRONTEND_PATH)) {
+  console.log('[状态] ✅ 前端目录存在');
+  const files = fs.readdirSync(FRONTEND_PATH);
+  console.log(`[信息] 包含 ${files.length} 个文件`);
+  
+  app.use(express.static(FRONTEND_PATH));
+} else {
+  console.error('[错误] ❌ 前端目录不存在，请检查路径');
+  console.error('[路径]', FRONTEND_PATH);
+}
 
-// 安全中间件
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:"],
-      frameSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: []
-    }
+// 前端路由
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return next();
   }
-}));
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
-
-// 请求日志
-app.use(morgan('combined'));
-
-// 限流
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: 100 // 每个IP限制100个请求
-});
-app.use('/api/', limiter);
-
-// 解析JSON请求体
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// 静态文件服务 - 使用简单路径，避免复杂相对路径计算
-app.use(express.static('public/my-site'));
-
-// 路由
-app.use('/api/auth', authRoutes);
-app.use('/api/missions', missionRoutes);
-app.use('/api/users', userRoutes);
-
-// 健康检查
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-// 前端路由处理 - 使用try-catch确保不会崩溃
-app.get('*', (req, res) => {
-  try {
-    // 首先尝试直接使用相对路径
-    res.sendFile('public/my-site/index.html', { root: '.' });
-  } catch (error) {
-    // 如果失败，返回简单的JSON响应，避免应用崩溃
-    res.status(404).json({
-      success: false,
-      error: '无法找到页面' + error.message
-    });
+  
+  const indexPath = path.join(FRONTEND_PATH, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    next(); // 交给错误处理中间件
   }
 });
-
-// 全局错误处理
-app.use(errorHandler);
-
-// 启动服务器
-const PORT = process.env.PORT || 5000;
-
-const startServer = async () => {
-  try {
-    // 连接数据库
-    await connectDB();
-    
-    app.listen(PORT, () => {
-      console.log(`
-      🚀 宇宙探索后端服务器已启动
-      📡 端口: ${PORT}
-      🌍 环境: ${process.env.NODE_ENV || 'development'}
-      🗄️  数据库: ${process.env.MONGODB_URI ? '已连接' : '未配置'}
-      `);
-    });
-  } catch (error) {
-    console.error('启动服务器失败:', error);
-    process.exit(1);
-  }
-};
-
-startServer();

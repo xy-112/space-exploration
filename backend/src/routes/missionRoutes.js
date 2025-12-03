@@ -34,4 +34,10 @@ router.get('/categories', async (req, res) => {
   }
 });
 
+// 收藏/取消收藏任务
+router.post('/favorite/:id', authenticate, missionController.toggleFavorite);
+
+// 获取用户收藏的任务
+router.get('/favorites', authenticate, missionController.getUserFavorites);
+
 module.exports = router;

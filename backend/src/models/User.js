@@ -63,22 +63,10 @@ const userSchema = new mongoose.Schema({
   resetPasswordToken: String,
   resetPasswordExpires: Date,
   
-  favorites: [{
-    missionId: {
-      type: Number,
-      required: true
-    },
-    missionTitle: {
-      type: String,
-      required: true
-    },
-    missionDescription: String,
-    missionImage: String,
-    addedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
+  favorites: {
+    type: [Number],
+    default: []
+  },
   
   gameStats: {
     totalScore: {

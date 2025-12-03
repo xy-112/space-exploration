@@ -64,3 +64,46 @@ Thumbs.db
 # 前端构建产物
 /public/my-site/build/
 /public/my-site/dist/
+
+# ========================
+# 宇宙探索项目特定规则
+# ========================
+
+# 前端模块缓存（如果使用Webpack等构建工具）
+.cache/
+.webpack/
+
+# 测试相关临时文件
+*.test.js
+*.spec.js
+__tests__/
+
+# Windows PowerShell临时文件
+*.ps1
+*.psm1
+
+# 数据库备份和导出
+backup/
+export/
+dump/
+
+# 大文件（游戏资源、视频等）
+*.mp4
+*.avi
+*.mov
+*.zip
+*.rar
+
+# Three.js相关缓存
+*.gltf
+*.glb.cache
+
+# 部署相关临时文件
+*.tar.gz
+*.zip
+deploy/
+
+# 本地开发临时脚本
+temp-*
+test-*
+diagnose-*   # 避免提交诊断脚本

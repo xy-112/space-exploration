@@ -1,10 +1,37 @@
 // 用户认证系统功能
 console.log('=== 用户认证系统加载 ===');
 
-// 模拟用户数据存储（在实际项目中应使用后端API）
-const mockUsers = [
-    { id: 1, username: 'admin', password: 'password123', email: 'admin@example.com', favorites: [] }
-];
+// API配置
+const API_BASE_URL = '/api';
+
+// 辅助函数：处理API请求
+async function apiRequest(endpoint, method = 'GET', data = null) {
+    try {
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include', // 发送Cookie
+        };
+        
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        const responseData = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(responseData.message || 'API请求失败');
+        }
+        
+        return responseData;
+    } catch (error) {
+        console.error('API请求错误:', error);
+        throw error;
+    }
+}
 
 // 认证管理器
 const authManager = {
@@ -315,77 +342,78 @@ const authManager = {
     },
     
     // 登录处理
-    handleLogin(e) {
+    async handleLogin(e) {
         const form = e.target;
         const username = form.querySelector('#login-username').value;
         const password = form.querySelector('#login-password').value;
         const errorAlert = document.getElementById('login-error-alert');
         
-        // 简单的登录验证（实际项目中应使用后端API）
-        const user = mockUsers.find(u => u.username === username && u.password === password);
-        
-        if (user) {
+        try {
+            // 调用后端登录API
+            const response = await apiRequest('/auth/login', 'POST', { username, password });
+            
             // 登录成功
-            this.currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            this.currentUser = response.user;
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
             this.hideLoginModal();
             this.updateUI();
             window.app.showNotification('登录成功！', 'success');
-        } else {
+        } catch (error) {
             // 登录失败
             if (errorAlert) {
-                errorAlert.textContent = '用户名或密码错误';
+                errorAlert.textContent = error.message || '用户名或密码错误';
                 errorAlert.style.display = 'block';
             }
         }
     },
     
     // 注册处理
-    handleSignup(e) {
+    async handleSignup(e) {
         const form = e.target;
         const username = form.querySelector('#signup-username').value;
         const email = form.querySelector('#signup-email').value;
         const password = form.querySelector('#signup-password').value;
         const confirmPassword = form.querySelector('#signup-confirm-password').value;
         const successAlert = document.getElementById('signup-success-alert');
+        const errorAlert = document.getElementById('signup-error-alert');
         
         // 验证密码是否匹配
         if (password !== confirmPassword) {
-            alert('两次输入的密码不一致');
+            if (errorAlert) {
+                errorAlert.textContent = '两次输入的密码不一致';
+                errorAlert.style.display = 'block';
+            }
             return;
         }
         
-        // 检查用户名是否已存在
-        if (mockUsers.find(u => u.username === username)) {
-            alert('用户名已存在');
-            return;
+        try {
+            // 调用后端注册API
+            await apiRequest('/auth/register', 'POST', { username, email, password });
+            
+            // 显示注册成功消息
+            if (successAlert) {
+                successAlert.style.display = 'block';
+            }
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+            
+            // 3秒后跳转到登录页面
+            setTimeout(() => {
+                this.hideSignupModal();
+                this.showLoginModal();
+            }, 3000);
+        } catch (error) {
+            // 注册失败
+            if (errorAlert) {
+                errorAlert.textContent = error.message || '注册失败';
+                errorAlert.style.display = 'block';
+            }
         }
-        
-        // 创建新用户
-        const newUser = {
-            id: mockUsers.length + 1,
-            username,
-            email,
-            password,
-            favorites: []
-        };
-        
-        mockUsers.push(newUser);
-        
-        // 显示注册成功消息
-        if (successAlert) {
-            successAlert.style.display = 'block';
-        }
-        
-        // 3秒后跳转到登录页面
-        setTimeout(() => {
-            this.hideSignupModal();
-            this.showLoginModal();
-        }, 3000);
     },
     
     // 修改密码处理
-    handleChangePassword(e) {
+    async handleChangePassword(e) {
         const form = e.target;
         const currentPassword = form.querySelector('#current-password').value;
         const newPassword = form.querySelector('#new-password').value;
@@ -393,16 +421,7 @@ const authManager = {
         const successAlert = document.getElementById('change-password-success-alert');
         const errorAlert = document.getElementById('change-password-error-alert');
         
-        // 验证当前密码
-        if (this.currentUser.password !== currentPassword) {
-            if (errorAlert) {
-                errorAlert.textContent = '当前密码错误';
-                errorAlert.style.display = 'block';
-            }
-            return;
-        }
-        
-        // 验证新密码是否匹配
+        // 验证密码是否匹配
         if (newPassword !== confirmNewPassword) {
             if (errorAlert) {
                 errorAlert.textContent = '两次输入的新密码不一致';
@@ -411,31 +430,55 @@ const authManager = {
             return;
         }
         
-        // 更新密码
-        this.currentUser.password = newPassword;
-        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-        
-        // 显示成功消息
-        if (successAlert) {
-            successAlert.style.display = 'block';
+        try {
+            // 调用后端修改密码API
+            await apiRequest('/auth/change-password', 'POST', { 
+                currentPassword, 
+                newPassword 
+            });
+            
+            // 更新本地用户数据
+            if (this.currentUser) {
+                this.currentUser.password = newPassword;
+                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            }
+            
+            // 显示成功消息
+            if (successAlert) {
+                successAlert.style.display = 'block';
+            }
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+            
+            // 清空表单
+            form.reset();
+            
+            // 3秒后关闭模态框
+            setTimeout(() => {
+                this.hideChangePasswordModal();
+            }, 3000);
+            
+            window.app.showNotification('密码修改成功！', 'success');
+        } catch (error) {
+            // 修改失败
+            if (errorAlert) {
+                errorAlert.textContent = error.message || '修改密码失败';
+                errorAlert.style.display = 'block';
+            }
         }
-        if (errorAlert) {
-            errorAlert.style.display = 'none';
-        }
-        
-        // 清空表单
-        form.reset();
-        
-        // 3秒后关闭模态框
-        setTimeout(() => {
-            this.hideChangePasswordModal();
-        }, 3000);
-        
-        window.app.showNotification('密码修改成功！', 'success');
     },
     
     // 退出登录
-    logout() {
+    async logout() {
+        try {
+            // 调用后端退出登录API
+            await apiRequest('/auth/logout', 'POST');
+        } catch (error) {
+            console.error('退出登录失败:', error);
+        }
+        
+        // 清除本地数据
         this.currentUser = null;
         localStorage.removeItem('currentUser');
         this.updateUI();
@@ -507,7 +550,7 @@ const authManager = {
     },
     
     // 收藏/取消收藏任务
-    toggleFavorite(missionId) {
+    async toggleFavorite(missionId) {
         if (!this.currentUser) {
             // 未登录用户提示登录
             this.showLoginModal();
@@ -515,57 +558,52 @@ const authManager = {
             return false;
         }
         
-        const index = this.currentUser.favorites.indexOf(missionId);
-        
-        if (index > -1) {
-            // 取消收藏
-            this.currentUser.favorites.splice(index, 1);
-            window.app.showNotification('已取消收藏', 'info');
-        } else {
-            // 收藏
-            this.currentUser.favorites.push(missionId);
-            window.app.showNotification('收藏成功', 'success');
+        try {
+            // 调用后端收藏API
+            const response = await apiRequest('/missions/favorite/' + missionId, 'POST');
+            
+            // 更新本地用户数据
+            this.currentUser = response.user;
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
+            
+            // 更新UI
+            this.updateFavoriteButtons();
+            
+            // 显示通知
+            window.app.showNotification(response.message, response.success ? 'success' : 'info');
+            
+            return true;
+        } catch (error) {
+            console.error('收藏/取消收藏失败:', error);
+            window.app.showNotification(error.message || '操作失败', 'error');
+            return false;
         }
-        
-        // 更新本地存储
-        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-        
-        // 更新UI
-        this.updateFavoriteButtons();
-        
-        return true;
     },
     
     // 加载收藏列表
-    loadFavorites() {
+    async loadFavorites() {
         const container = document.getElementById('favorites-container');
         if (!container) return;
         
-        if (!this.currentUser || this.currentUser.favorites.length === 0) {
-            // 没有收藏
-            container.innerHTML = `
-                <div class="empty-favorites">
-                    <i class="fas fa-heart-broken"></i>
-                    <h3>暂无收藏</h3>
-                    <p>您还没有收藏任何任务</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // 模拟任务数据（实际项目中应从API获取）
-        const missionData = {
-            1: { title: '火星殖民计划', description: '建立人类在火星上的第一个永久定居点' },
-            2: { title: '木星探测任务', description: '深入探索木星及其卫星系统' },
-            3: { title: '系外行星搜寻', description: '使用先进望远镜寻找类地系外行星' },
-            4: { title: '小行星采矿', description: '开发小行星资源，获取稀有矿物和水资源' }
-        };
-        
-        // 生成收藏列表
-        let html = '<div class="favorites-list">';
-        this.currentUser.favorites.forEach(missionId => {
-            const mission = missionData[missionId];
-            if (mission) {
+        try {
+            // 调用后端获取收藏列表API
+            const response = await apiRequest('/missions/favorites', 'GET');
+            
+            if (!response.favorites || response.favorites.length === 0) {
+                // 没有收藏
+                container.innerHTML = `
+                    <div class="empty-favorites">
+                        <i class="fas fa-heart-broken"></i>
+                        <h3>暂无收藏</h3>
+                        <p>您还没有收藏任何任务</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 生成收藏列表
+            let html = '<div class="favorites-list">';
+            response.favorites.forEach(mission => {
                 html += `
                     <div class="favorite-item">
                         <div class="favorite-item-content">
@@ -573,16 +611,25 @@ const authManager = {
                             <p>${mission.description}</p>
                         </div>
                         <div class="favorite-item-actions">
-                            <button class="btn btn-primary" onclick="authManager.viewMission(${missionId})">查看详情</button>
-                            <button class="btn" onclick="authManager.toggleFavorite(${missionId})">取消收藏</button>
+                            <button class="btn btn-primary" onclick="authManager.viewMission(${mission.id})">查看详情</button>
+                            <button class="btn" onclick="authManager.toggleFavorite(${mission.id})">取消收藏</button>
                         </div>
                     </div>
                 `;
-            }
-        });
-        html += '</div>';
-        
-        container.innerHTML = html;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('加载收藏列表失败:', error);
+            container.innerHTML = `
+                <div class="empty-favorites">
+                    <i class="fas fa-heart-broken"></i>
+                    <h3>加载失败</h3>
+                    <p>无法加载收藏列表，请稍后重试</p>
+                </div>
+            `;
+        }
     },
     
     // 查看任务详情

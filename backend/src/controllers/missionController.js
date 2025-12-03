@@ -154,3 +154,71 @@ exports.getTopPopularMissions = async (req, res, next) => {
     next(error);
   }
 };
+
+// 收藏/取消收藏任务
+exports.toggleFavorite = async (req, res, next) => {
+  try {
+    const missionId = req.params.id;
+    const userId = req.user.id;
+    
+    // 更新用户收藏
+    const user = await require('../models/User').findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: '用户不存在'
+      });
+    }
+    
+    // 检查任务是否已收藏
+    const isFavorited = user.favorites.includes(missionId);
+    
+    if (isFavorited) {
+      // 取消收藏
+      user.favorites = user.favorites.filter(id => id.toString() !== missionId);
+    } else {
+      // 添加收藏
+      user.favorites.push(missionId);
+    }
+    
+    await user.save();
+    
+    res.status(200).json({
+      success: true,
+      message: isFavorited ? '已取消收藏' : '已收藏',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        favorites: user.favorites
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 获取用户收藏的任务
+exports.getUserFavorites = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    // 获取用户信息
+    const user = await require('../models/User').findById(userId).populate('favorites');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: '用户不存在'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      favorites: user.favorites
+    });
+  } catch (error) {
+    next(error);
+  }
+};
