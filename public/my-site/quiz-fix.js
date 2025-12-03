@@ -352,7 +352,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // 检查用户是否登录
             if (window.authManager && window.authManager.getCurrentUser()) {
                 // 调用后端API保存成绩
-                await fetch('/api/quiz/save-score', {
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : '/api';
+                
+                await fetch(`${API_BASE_URL}/quiz/save-score`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

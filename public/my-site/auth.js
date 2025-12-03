@@ -1,8 +1,9 @@
 // 用户认证系统功能
 console.log('=== 用户认证系统加载 ===');
 
-// API配置
-const API_BASE_URL = '/api';
+// API配置 - 根据环境自动切换
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : '/api';
 
 // 辅助函数：处理API请求
 async function apiRequest(endpoint, method = 'GET', data = null) {
