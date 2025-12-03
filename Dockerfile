@@ -24,5 +24,5 @@ ENV NODE_ENV=production
 ENV FRONTEND_PATH=/app/public/my-site
 ENV PORT=5000
 
-# 启动服务器（使用部署专用版本）
-CMD ["node", "backend/src/server.js"]
+# 启动服务器
+CMD ["node", "backend/src/server-production.js"]
