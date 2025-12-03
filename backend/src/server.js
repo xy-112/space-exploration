@@ -83,10 +83,10 @@ app.get('/api/test', (req, res) => {
   });
 });
 
-// 其他API路由...
-// 例如：
-// app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/missions', require('./routes/missionRoutes'));
+// 启用所有API路由
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/missions', require('./routes/missionRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 // ==================== 前端路由 ====================
 app.get('*', (req, res, next) => {
@@ -154,15 +154,31 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ==================== 服务器启动 ====================
-app.listen(PORT, () => {
-  console.log('\n' + '='.repeat(60));
-  console.log('🚀 服务器启动成功！');
-  console.log(`   端口: ${PORT}`);
-  console.log(`   环境: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`   前端访问: http://localhost:${PORT}`);
-  console.log(`   健康检查: http://localhost:${PORT}/api/health`);
-  console.log('='.repeat(60));
-});
+// ==================== 数据库连接 ====================
+const { connectDB } = require('./utils/database');
+
+async function startServer() {
+  try {
+    // 连接数据库
+    await connectDB();
+    
+    // ==================== 服务器启动 ====================
+    app.listen(PORT, () => {
+      console.log('\n' + '='.repeat(60));
+      console.log('🚀 服务器启动成功！');
+      console.log(`   端口: ${PORT}`);
+      console.log(`   环境: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`   前端访问: http://localhost:${PORT}`);
+      console.log(`   健康检查: http://localhost:${PORT}/api/health`);
+      console.log('='.repeat(60));
+    });
+  } catch (error) {
+    console.error('❌ 服务器启动失败:', error);
+    process.exit(1);
+  }
+}
+
+// 启动服务器
+startServer();
 
 module.exports = app;
