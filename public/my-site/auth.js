@@ -11,10 +11,15 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         console.log(`发起API请求: ${method} ${url}`);
         console.log('请求数据:', data);
         
+        // 从localStorage获取token
+        const token = localStorage.getItem('token') || '';
+        console.log('使用的token:', token);
+        
         const options = {
             method,
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
             },
             credentials: 'include', // 发送Cookie
         };
@@ -384,6 +389,7 @@ const authManager = {
             console.log('登录成功:', response);
             this.currentUser = response.user;
             localStorage.setItem('currentUser', JSON.stringify(response.user));
+            localStorage.setItem('token', response.token);
             this.hideLoginModal();
             this.updateUI();
             window.app.showNotification('登录成功！', 'success');
@@ -540,6 +546,7 @@ const authManager = {
         // 清除本地数据
         this.currentUser = null;
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
         this.updateUI();
         window.app.showNotification('已退出登录', 'info');
     },
