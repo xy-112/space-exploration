@@ -2,8 +2,8 @@
 console.log('=== 用户认证系统加载 ===');
 
 // API配置 - 根据环境自动切换
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : '/api';
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::]';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // 辅助函数：处理API请求
 async function apiRequest(endpoint, method = 'GET', data = null) {
@@ -28,11 +28,27 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         console.log('响应状态:', response.status);
         console.log('响应头:', response.headers);
         
-        const responseData = await response.json();
-        console.log('响应数据:', responseData);
+        let responseData;
+        try {
+            responseData = await response.json();
+            console.log('响应数据:', responseData);
+        } catch (jsonError) {
+            console.error('JSON解析错误:', jsonError);
+            throw new Error('服务器返回了无效的JSON响应');
+        }
         
         if (!response.ok) {
-            throw new Error(responseData.message || 'API请求失败');
+            // 处理不同类型的错误响应
+            if (responseData.error) {
+                // 单条错误信息
+                throw new Error(responseData.error);
+            } else if (responseData.errors && responseData.errors.length > 0) {
+                // 多条错误信息，取第一条
+                throw new Error(responseData.errors[0].msg);
+            } else {
+                // 其他错误
+                throw new Error('API请求失败');
+            }
         }
         
         return responseData;
@@ -392,10 +408,41 @@ const authManager = {
         const successAlert = document.getElementById('signup-success-alert');
         const errorAlert = document.getElementById('signup-error-alert');
         
-        // 验证密码是否匹配
-        if (password !== confirmPassword) {
+        // 重置提示信息
+        if (successAlert) {
+            successAlert.style.display = 'none';
+        }
+        if (errorAlert) {
+            errorAlert.style.display = 'none';
+        }
+        
+        // 客户端验证
+        let validationError = '';
+        
+        // 用户名验证
+        if (username.length < 3 || username.length > 30) {
+            validationError = '用户名长度应在3-30个字符之间';
+        } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            validationError = '用户名只能包含字母、数字和下划线';
+        }
+        // 邮箱验证
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            validationError = '请输入有效的邮箱地址';
+        }
+        // 密码验证
+        else if (password.length < 6) {
+            validationError = '密码至少需要6个字符';
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            validationError = '密码必须包含大小写字母和数字';
+        }
+        // 确认密码验证
+        else if (password !== confirmPassword) {
+            validationError = '两次输入的密码不一致';
+        }
+        
+        if (validationError) {
             if (errorAlert) {
-                errorAlert.textContent = '两次输入的密码不一致';
+                errorAlert.textContent = validationError;
                 errorAlert.style.display = 'block';
             }
             return;
@@ -403,14 +450,11 @@ const authManager = {
         
         try {
             // 调用后端注册API
-            await apiRequest('/auth/register', 'POST', { username, email, password });
+            await apiRequest('/auth/register', 'POST', { username, email, password, confirmPassword });
             
             // 显示注册成功消息
             if (successAlert) {
                 successAlert.style.display = 'block';
-            }
-            if (errorAlert) {
-                errorAlert.style.display = 'none';
             }
             
             // 3秒后跳转到登录页面
@@ -420,6 +464,7 @@ const authManager = {
             }, 3000);
         } catch (error) {
             // 注册失败
+            console.error('注册失败:', error);
             if (errorAlert) {
                 errorAlert.textContent = error.message || '注册失败';
                 errorAlert.style.display = 'block';
