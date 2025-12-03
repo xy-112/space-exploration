@@ -1437,7 +1437,7 @@
             background: rgba(244, 67, 54, 0.9);
         }
         
-        /* 探索历程样式 */
+        /* 探索历程样式 - 深空科技感设计 */
         .timeline {
             padding: 100px 0;
             position: relative;
@@ -1452,18 +1452,19 @@
             box-sizing: border-box;
         }
         
-        /* 中央时间轴 */
+        /* 中央时间轴 - 深蓝色垂直线条 */
         .timeline-container::after {
             content: '';
             position: absolute;
-            width: 4px;
-            background: linear-gradient(to bottom, var(--accent), var(--accent-light));
+            width: 3px;
+            background: linear-gradient(to bottom, rgba(7, 114, 202, 0.8), rgba(122, 188, 250, 0.3));
             top: 0;
             bottom: 0;
             left: 50%;
-            margin-left: -2px;
+            margin-left: -1.5px;
             border-radius: 2px;
-            opacity: 0.8;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(7, 114, 202, 0.5);
         }
         
         .timeline-item {
@@ -1473,17 +1474,25 @@
             box-sizing: border-box;
         }
         
-        /* 卡片容器 */
+        /* 卡片容器 - 深蓝色半透明卡片 */
         .timeline-content {
             position: relative;
             width: 45%;
             min-width: 300px;
             padding: 25px;
-            background: rgba(26, 26, 74, 0.95);
-            border-radius: 8px;
-            border: 1px solid rgba(74, 157, 227, 0.3);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(26, 26, 74, 0.98) 0%, rgba(10, 10, 42, 0.95) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(7, 114, 202, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(7, 114, 202, 0.2) inset;
+            transition: all 0.3s ease-in-out;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 卡片悬停效果 */
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(7, 114, 202, 0.3) inset;
+            border-color: rgba(122, 188, 250, 0.6);
         }
         
         /* 清除浮动 */
@@ -1519,75 +1528,97 @@
             margin-right: 0 !important;
         }
         
-        /* 时间线节点 */
+        /* 时间线节点 - 发光蓝色圆点 */
         .timeline-item::before {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
-            background: var(--accent);
-            border: 3px solid var(--secondary);
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: 3px solid rgba(26, 26, 74, 0.8);
             border-radius: 50%;
             z-index: 2;
             left: 50%;
             transform: translateX(-50%);
             top: 35px;
+            box-shadow: 0 0 15px rgba(7, 114, 202, 0.8), 0 0 30px rgba(7, 114, 202, 0.4);
+            animation: pulse 2s infinite;
         }
         
-        /* 连接箭头 */
+        /* 脉冲动画效果 */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 15px rgba(7, 114, 202, 0.8), 0 0 30px rgba(7, 114, 202, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(7, 114, 202, 1), 0 0 40px rgba(7, 114, 202, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 15px rgba(7, 114, 202, 0.8), 0 0 30px rgba(7, 114, 202, 0.4);
+            }
+        }
+        
+        /* 连接箭头 - 简化为与卡片一致的颜色 */
         .timeline-content::before {
             content: '';
             position: absolute;
             width: 0;
             height: 0;
             border-style: solid;
-            top: 30px;
-            z-index: 1;
+            top: 38px;
+            z-index: 2;
         }
         
         /* 左侧卡片箭头 */
         .timeline-content.left::before {
             right: -10px;
             border-width: 10px 0 10px 10px;
-            border-color: transparent transparent transparent rgba(26, 26, 74, 0.95);
+            border-color: transparent transparent transparent rgba(26, 26, 74, 0.98);
+            filter: drop-shadow(2px 0 3px rgba(0, 0, 0, 0.3));
         }
         
         /* 右侧卡片箭头 */
         .timeline-content.right::before {
             left: -10px;
             border-width: 10px 10px 10px 0;
-            border-color: transparent rgba(26, 26, 74, 0.95) transparent transparent;
+            border-color: transparent rgba(26, 26, 74, 0.98) transparent transparent;
+            filter: drop-shadow(-2px 0 3px rgba(0, 0, 0, 0.3));
         }
         
-        /* 日期标签 */
+        /* 日期标签 - 浅蓝色突出显示 */
         .timeline-date {
-            font-size: 0.85rem;
-            color: var(--accent);
-            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+            margin-bottom: 12px;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .timeline-date i {
-            font-size: 0.9rem;
+            font-size: 1rem;
+            color: var(--accent);
         }
         
-        /* 标题样式 */
+        /* 标题样式 - 亮蓝色突出 */
         .timeline-content h3 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
             color: var(--accent-light);
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
         
-        /* 内容样式 */
+        /* 内容样式 - 清晰易读 */
         .timeline-content p {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            line-height: 1.6;
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.7;
             margin: 0;
+            opacity: 0.9;
         }
         
         /* 确保文字正常换行 */
