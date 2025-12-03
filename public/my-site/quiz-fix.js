@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // 调用后端API保存成绩
-            const response = await fetch('/api/quiz/save-score', {
+            const response = await fetch('http://localhost:5000/api/quiz/save-score', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.authManager && window.authManager.getCurrentUser()) {
                 // 调用后端API保存成绩
                 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : '/api';
+                const API_BASE_URL = 'http://localhost:5000/api';
                 
                 await fetch(`${API_BASE_URL}/quiz/save-score`, {
                     method: 'POST',
