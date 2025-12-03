@@ -41,7 +41,7 @@ const missionDetails = {
         ],
         stats: {
             duration: '2025-2035',
-            astronauts: '100+',
+            astronauts: '12+',
             location: '火星'
         }
     },

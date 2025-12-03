@@ -8,6 +8,10 @@ const API_BASE_URL = isLocalhost ? 'http://localhost:5000/api' : '/api';
 // 辅助函数：处理API请求
 async function apiRequest(endpoint, method = 'GET', data = null) {
     try {
+        const url = `${API_BASE_URL}${endpoint}`;
+        console.log(`发起API请求: ${method} ${url}`);
+        console.log('请求数据:', data);
+        
         const options = {
             method,
             headers: {
@@ -20,8 +24,12 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
             options.body = JSON.stringify(data);
         }
         
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        const response = await fetch(url, options);
+        console.log('响应状态:', response.status);
+        console.log('响应头:', response.headers);
+        
         const responseData = await response.json();
+        console.log('响应数据:', responseData);
         
         if (!response.ok) {
             throw new Error(responseData.message || 'API请求失败');
@@ -350,10 +358,15 @@ const authManager = {
         const errorAlert = document.getElementById('login-error-alert');
         
         try {
+            console.log('开始登录...');
+            console.log('用户名:', username);
+            console.log('API_BASE_URL:', API_BASE_URL);
+            
             // 调用后端登录API
             const response = await apiRequest('/auth/login', 'POST', { username, password });
             
             // 登录成功
+            console.log('登录成功:', response);
             this.currentUser = response.user;
             localStorage.setItem('currentUser', JSON.stringify(response.user));
             this.hideLoginModal();
@@ -361,6 +374,7 @@ const authManager = {
             window.app.showNotification('登录成功！', 'success');
         } catch (error) {
             // 登录失败
+            console.error('登录失败:', error);
             if (errorAlert) {
                 errorAlert.textContent = error.message || '用户名或密码错误';
                 errorAlert.style.display = 'block';
