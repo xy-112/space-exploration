@@ -12,17 +12,21 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         console.log('请求数据:', data);
         
         // 从localStorage获取token
-        const token = localStorage.getItem('token') || '';
+        const token = localStorage.getItem('token');
         console.log('使用的token:', token);
         
         const options = {
             method,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : '',
             },
             credentials: 'include', // 发送Cookie
         };
+        
+        // 只有在token存在时才添加Authorization头
+        if (token) {
+            options.headers.Authorization = `Bearer ${token}`;
+        }
         
         if (data) {
             options.body = JSON.stringify(data);
