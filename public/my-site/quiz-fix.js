@@ -349,18 +349,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // 保存知识挑战成绩到数据库
     async function saveQuizScore(score, totalQuestions) {
         try {
-            // 检查用户是否登录
-            if (window.authManager && window.authManager.getCurrentUser()) {
-                // 调用后端API保存成绩
-                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const API_BASE_URL = 'http://localhost:5000/api';
-                
-                await fetch(`${API_BASE_URL}/quiz/save-score`, {
+            // 检查用户是否登录且API对象可用
+            if (window.authManager && window.authManager.getCurrentUser() && window.API) {
+                // 使用全局API对象保存成绩，自动处理认证
+                await window.API.request('/quiz/save-score', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
                     body: JSON.stringify({
                         score: score,
                         totalQuestions: totalQuestions

@@ -637,12 +637,25 @@ const authManager = {
         }
         
         try {
+            // 获取任务数据
+            const mission = window.missionManager.getMissionDetails(missionId);
+            if (!mission) {
+                throw new Error('任务数据不存在');
+            }
+            
             // 调用后端收藏API
-            const response = await apiRequest('/missions/favorite/' + missionId, 'POST');
+            const response = await apiRequest('/users/favorites/toggle', 'POST', {
+                missionId: missionId,
+                missionTitle: mission.title,
+                missionDescription: mission.description,
+                missionImage: mission.image
+            });
             
             // 更新本地用户数据
-            this.currentUser = response.user;
-            localStorage.setItem('currentUser', JSON.stringify(response.user));
+            if (response.user) {
+                this.currentUser = response.user;
+                localStorage.setItem('currentUser', JSON.stringify(response.user));
+            }
             
             // 更新UI
             this.updateFavoriteButtons();
@@ -665,7 +678,7 @@ const authManager = {
         
         try {
             // 调用后端获取收藏列表API
-            const response = await apiRequest('/missions/favorites', 'GET');
+            const response = await apiRequest('/users/favorites', 'GET');
             
             if (!response.favorites || response.favorites.length === 0) {
                 // 没有收藏
