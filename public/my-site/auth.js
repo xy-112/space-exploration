@@ -672,22 +672,23 @@ const authManager = {
             }
             
             // 生成收藏列表
-            let html = '<div class="favorites-list">';
-            response.favorites.forEach(mission => {
-                html += `
-                    <div class="favorite-item">
-                        <div class="favorite-item-content">
-                            <h4>${mission.title}</h4>
-                            <p>${mission.description}</p>
-                        </div>
-                        <div class="favorite-item-actions">
-                            <button class="btn btn-primary" onclick="authManager.viewMission(${mission.id})">查看详情</button>
-                            <button class="btn" onclick="authManager.toggleFavorite(${mission.id})">取消收藏</button>
-                        </div>
+        let html = '<div class="favorites-list">';
+        response.favorites.forEach(mission => {
+            html += `
+                <div class="favorite-item">
+                    <div class="favorite-item-content">
+                        <h4>${mission.title}</h4>
+                        <p>${mission.description}</p>
                     </div>
-                `;
-            });
-            html += '</div>';
+                    <div class="favorite-item-actions">
+                        <button class="btn btn-primary" onclick="authManager.viewMission(${mission.missionId})">查看详情</button>
+                        <button class="btn" onclick="authManager.toggleFavorite(${mission.missionId})">取消收藏</button>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        console.log('生成的收藏列表HTML:', html);
             
             container.innerHTML = html;
         } catch (error) {

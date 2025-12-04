@@ -40,7 +40,7 @@ const missionSchema = new mongoose.Schema({
   
   category: {
     type: String,
-    enum: ['mars', 'jupiter', 'saturn', 'moon', 'exoplanet', 'asteroid', 'space_station'],
+    enum: ['mars', 'jupiter', 'saturn', 'moon', 'exoplanet', 'asteroid', 'space_station', 'venus'],
     required: true
   },
   

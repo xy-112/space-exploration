@@ -20,7 +20,9 @@ exports.getAllMissions = async (req, res, next) => {
 // 根据ID获取太空任务
 exports.getMissionById = async (req, res, next) => {
   try {
-    const mission = await Mission.findById(req.params.id);
+    // 使用missionId字段，而不是_id
+    const missionId = parseInt(req.params.id);
+    const mission = await Mission.findOne({ missionId });
     
     if (!mission) {
       return res.status(404).json({
@@ -163,7 +165,10 @@ exports.toggleFavorite = async (req, res, next) => {
     const userId = req.user.id;
     
     // 更新用户收藏
-    const user = await require('../models/User').findById(userId);
+    const User = require('../models/User');
+    const Mission = require('../models/Mission');
+    
+    const user = await User.findById(userId);
     
     if (!user) {
       return res.status(404).json({
@@ -174,6 +179,22 @@ exports.toggleFavorite = async (req, res, next) => {
     
     // 检查任务是否已收藏 - 使用数字比较
     const isFavorited = user.favorites.includes(missionId);
+    
+    // 查找对应的任务，更新popularity.favorites计数
+    const mission = await Mission.findOne({ missionId });
+    
+    if (mission) {
+      if (isFavorited) {
+        // 取消收藏 - 减少任务的收藏计数
+        if (mission.popularity.favorites > 0) {
+          mission.popularity.favorites--;
+        }
+      } else {
+        // 添加收藏 - 增加任务的收藏计数
+        mission.popularity.favorites++;
+      }
+      await mission.save();
+    }
     
     if (isFavorited) {
       // 取消收藏 - 使用数字比较
@@ -219,11 +240,11 @@ exports.getUserFavorites = async (req, res, next) => {
       });
     }
     
-    // 因为favorites是数字ID数组，不是ObjectId，所以需要单独查询任务
+    // 因为favorites是数字ID数组，需要查询missionId字段，而不是_id
     const Mission = require('../models/Mission');
     const favoriteMissions = await Mission.find({
-      // 将数字ID转换为字符串，因为MongoDB中的_id是字符串类型
-      _id: { $in: user.favorites.map(id => id.toString()) }
+      // 使用数字ID直接查询missionId字段
+      missionId: { $in: user.favorites }
     });
     
     res.status(200).json({
