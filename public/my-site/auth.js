@@ -2,7 +2,7 @@
 console.log('=== 用户认证系统加载 ===');
 
 // API配置 - 使用绝对路径，确保能正确连接到后端API
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 // 辅助函数：处理API请求
 async function apiRequest(endpoint, method = 'GET', data = null) {

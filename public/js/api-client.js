@@ -1,7 +1,7 @@
 // API客户端 - 用于前端与后端通信
 class APIClient {
   constructor(baseURL) {
-    this.baseURL = baseURL || window.location.origin;
+    this.baseURL = baseURL || ''; // 使用空字符串，让请求使用相对路径
     this.token = localStorage.getItem('auth_token');
   }
   
