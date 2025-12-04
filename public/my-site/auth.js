@@ -267,7 +267,15 @@ const authManager = {
             modal.classList.add('active');
             // 清空表单
             document.getElementById('signup-form').reset();
-            document.getElementById('signup-success-alert').style.display = 'none';
+            // 重置所有提示信息
+            const successAlert = document.getElementById('signup-success-alert');
+            if (successAlert) {
+                successAlert.style.display = 'none';
+            }
+            const errorAlert = document.getElementById('signup-error-alert');
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
         }
     },
     

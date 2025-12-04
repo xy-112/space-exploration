@@ -162,7 +162,7 @@ exports.toggleFavorite = async (req, res, next) => {
   try {
     // 将字符串ID转换为数字类型，因为前端使用的是数字ID
     const missionId = parseInt(req.params.id);
-    const userId = req.user.id;
+    const userId = req.user._id;
     
     // 更新用户收藏
     const User = require('../models/User');
